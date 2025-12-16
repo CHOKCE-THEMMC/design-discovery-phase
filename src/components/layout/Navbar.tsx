@@ -8,14 +8,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import ThemeToggle from "@/components/theme/ThemeToggle";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const categories = [
-    { name: "Books", href: "/materials?type=books" },
-    { name: "Lecture Notes", href: "/materials?type=lecture-notes" },
-    { name: "Past Papers", href: "/materials?type=past-papers" },
+    { name: "Books", href: "/books" },
+    { name: "Lecture Notes", href: "/lecture-notes" },
+    { name: "Past Papers", href: "/past-papers" },
     { name: "Tutorials", href: "/tutorials" },
   ];
 
@@ -59,7 +60,7 @@ const Navbar = () => {
             </DropdownMenu>
 
             <Link 
-              to="/materials" 
+              to="/browse" 
               className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors"
             >
               Browse
@@ -78,6 +79,7 @@ const Navbar = () => {
             <Button variant="ghost" size="icon" className="text-foreground/70 hover:text-foreground">
               <Search className="h-5 w-5" />
             </Button>
+            <ThemeToggle />
             <Button variant="ghost" size="icon" className="text-foreground/70 hover:text-foreground">
               <Bell className="h-5 w-5" />
             </Button>
@@ -114,7 +116,7 @@ const Navbar = () => {
                 Home
               </Link>
               <Link 
-                to="/materials" 
+                to="/browse" 
                 className="px-4 py-2 text-foreground/80 hover:text-foreground hover:bg-muted rounded-md transition-colors"
                 onClick={() => setIsOpen(false)}
               >
