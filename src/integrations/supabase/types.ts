@@ -14,16 +14,137 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      materials: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          author: string | null
+          created_at: string
+          department: string
+          description: string | null
+          download_count: number | null
+          file_name: string | null
+          file_size: number | null
+          file_url: string | null
+          id: string
+          status: Database["public"]["Enums"]["material_status"]
+          thumbnail_url: string | null
+          title: string
+          type: Database["public"]["Enums"]["material_type"]
+          updated_at: string
+          uploaded_by: string | null
+          year: number | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          author?: string | null
+          created_at?: string
+          department: string
+          description?: string | null
+          download_count?: number | null
+          file_name?: string | null
+          file_size?: number | null
+          file_url?: string | null
+          id?: string
+          status?: Database["public"]["Enums"]["material_status"]
+          thumbnail_url?: string | null
+          title: string
+          type: Database["public"]["Enums"]["material_type"]
+          updated_at?: string
+          uploaded_by?: string | null
+          year?: number | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          author?: string | null
+          created_at?: string
+          department?: string
+          description?: string | null
+          download_count?: number | null
+          file_name?: string | null
+          file_size?: number | null
+          file_url?: string | null
+          id?: string
+          status?: Database["public"]["Enums"]["material_status"]
+          thumbnail_url?: string | null
+          title?: string
+          type?: Database["public"]["Enums"]["material_type"]
+          updated_at?: string
+          uploaded_by?: string | null
+          year?: number | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
+      material_status: "pending" | "approved" | "rejected"
+      material_type: "book" | "lecture_note" | "past_paper" | "tutorial"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +271,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+      material_status: ["pending", "approved", "rejected"],
+      material_type: ["book", "lecture_note", "past_paper", "tutorial"],
+    },
   },
 } as const
