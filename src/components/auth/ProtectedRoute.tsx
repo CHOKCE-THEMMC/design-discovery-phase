@@ -1,0 +1,39 @@
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/use-auth';
+import { Loader2 } from 'lucide-react';
+
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+  requireAdmin?: boolean;
+  requireModerator?: boolean;
+}
+
+export function ProtectedRoute({ 
+  children, 
+  requireAdmin = false,
+  requireModerator = false 
+}: ProtectedRouteProps) {
+  const { user, loading, isAdmin, isModerator } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (requireAdmin && !isAdmin) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (requireModerator && !isModerator) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <>{children}</>;
+}

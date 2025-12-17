@@ -1,14 +1,19 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { BookOpen, Mail, Lock, Eye, EyeOff, User, GraduationCap, ArrowRight } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { BookOpen, Mail, Lock, Eye, EyeOff, User, GraduationCap, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useAuth } from "@/hooks/use-auth";
+import { toast } from "sonner";
 
 const Register = () => {
+  const navigate = useNavigate();
+  const { signUp, user, loading: authLoading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -18,10 +23,11 @@ const Register = () => {
     agreeTerms: false,
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log(formData);
-  };
+  useEffect(() => {
+    if (user && !authLoading) {
+      navigate('/');
+    }
+  }, [user, authLoading, navigate]);
 
   const departments = [
     "Computer Science",
@@ -32,6 +38,45 @@ const Register = () => {
     "Social Sciences",
     "Arts & Humanities",
   ];
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!formData.agreeTerms) {
+      toast.error('Please agree to the Terms of Service');
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      toast.error('Password must be at least 6 characters');
+      return;
+    }
+
+    setLoading(true);
+
+    const { error } = await signUp(formData.email, formData.password, formData.name);
+
+    if (error) {
+      if (error.message.includes('already registered')) {
+        toast.error('This email is already registered');
+      } else {
+        toast.error(error.message);
+      }
+      setLoading(false);
+      return;
+    }
+
+    toast.success('Account created successfully! Welcome to UniLibrary.');
+    navigate('/');
+  };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex">
@@ -107,6 +152,7 @@ const Register = () => {
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className="pl-10"
                   required
+                  disabled={loading}
                 />
               </div>
             </div>
@@ -123,6 +169,7 @@ const Register = () => {
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   className="pl-10"
                   required
+                  disabled={loading}
                 />
               </div>
             </div>
@@ -133,6 +180,7 @@ const Register = () => {
                 <Select
                   value={formData.role}
                   onValueChange={(value) => setFormData({ ...formData, role: value })}
+                  disabled={loading}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select role" />
@@ -149,6 +197,7 @@ const Register = () => {
                 <Select
                   value={formData.department}
                   onValueChange={(value) => setFormData({ ...formData, department: value })}
+                  disabled={loading}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select" />
@@ -176,6 +225,7 @@ const Register = () => {
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   className="pl-10 pr-10"
                   required
+                  disabled={loading}
                 />
                 <button
                   type="button"
@@ -186,7 +236,7 @@ const Register = () => {
                 </button>
               </div>
               <p className="text-xs text-muted-foreground">
-                Must be at least 8 characters with a number and symbol
+                Must be at least 6 characters
               </p>
             </div>
 
@@ -196,6 +246,7 @@ const Register = () => {
                 checked={formData.agreeTerms}
                 onCheckedChange={(checked) => setFormData({ ...formData, agreeTerms: checked as boolean })}
                 className="mt-1"
+                disabled={loading}
               />
               <Label htmlFor="terms" className="text-sm font-normal cursor-pointer leading-relaxed">
                 I agree to the{" "}
@@ -205,9 +256,18 @@ const Register = () => {
               </Label>
             </div>
 
-            <Button type="submit" className="w-full" size="lg">
-              Create Account
-              <ArrowRight className="ml-2 h-5 w-5" />
+            <Button type="submit" className="w-full" size="lg" disabled={loading}>
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Creating Account...
+                </>
+              ) : (
+                <>
+                  Create Account
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </>
+              )}
             </Button>
           </form>
 
