@@ -1,17 +1,39 @@
 import { Search, BookOpen, FileText, GraduationCap, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+
+const heroMessages = [
+  { text: "Discover Knowledge,", highlight: "Empower", suffix: "Your Learning" },
+  { text: "Access Resources,", highlight: "Excel", suffix: "in Your Studies" },
+  { text: "Learn Today,", highlight: "Lead", suffix: "Tomorrow" },
+  { text: "Knowledge is Power,", highlight: "Unlock", suffix: "Your Potential" },
+  { text: "Study Smart,", highlight: "Achieve", suffix: "Your Dreams" },
+];
 
 const HeroSection = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [messageIndex, setMessageIndex] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsAnimating(true);
+      setTimeout(() => {
+        setMessageIndex((prev) => (prev + 1) % heroMessages.length);
+        setIsAnimating(false);
+      }, 500);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/materials?search=${encodeURIComponent(searchQuery)}`);
+      navigate(`/browse?search=${encodeURIComponent(searchQuery)}`);
     }
   };
 
@@ -21,6 +43,8 @@ const HeroSection = () => {
     { icon: GraduationCap, label: "Past Papers", count: "3,000+" },
     { icon: Video, label: "Tutorials", count: "500+" },
   ];
+
+  const currentMessage = heroMessages[messageIndex];
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary/95 to-library-burgundy min-h-[600px] flex items-center">
@@ -37,14 +61,18 @@ const HeroSection = () => {
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mb-6 animate-fade-in">
             <span className="w-2 h-2 rounded-full bg-library-gold animate-pulse" />
             <span className="text-sm text-white/90 font-medium">
-              Welcome to the University Library Portal
+              Welcome to DESTINATION TRAINING INSTITUTE Library Portal
             </span>
           </div>
 
-          {/* Heading */}
-          <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 animate-slide-up" style={{ animationDelay: '0.1s' }}>
-            Discover Knowledge,{" "}
-            <span className="text-library-gold">Empower</span> Your Learning
+          {/* Heading with Animation */}
+          <h1 
+            className={`font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 transition-all duration-500 ${
+              isAnimating ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'
+            }`}
+          >
+            {currentMessage.text}{" "}
+            <span className="text-library-gold">{currentMessage.highlight}</span> {currentMessage.suffix}
           </h1>
 
           {/* Description */}
@@ -72,7 +100,7 @@ const HeroSection = () => {
             <Button 
               type="submit"
               size="lg" 
-              className="h-12 px-8 bg-library-gold text-primary font-semibold hover:bg-library-gold/90 transition-colors"
+              className="h-12 px-8 bg-library-gold text-primary-foreground font-semibold hover:bg-library-gold/90 transition-colors"
             >
               Search
             </Button>

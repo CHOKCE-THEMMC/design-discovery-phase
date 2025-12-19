@@ -44,10 +44,10 @@ const About = () => {
         <section className="bg-gradient-to-br from-primary via-primary/90 to-library-burgundy py-16 md:py-24">
           <div className="container mx-auto px-4 text-center">
             <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-6">
-              About UniLibrary
+              About DTI Library
             </h1>
             <p className="text-white/80 max-w-3xl mx-auto text-lg">
-              Empowering academic excellence through accessible, comprehensive, and 
+              DESTINATION TRAINING INSTITUTE - Empowering academic excellence through accessible, comprehensive, and 
               innovative digital library solutions for students, faculty, and researchers.
             </p>
           </div>
@@ -86,8 +86,8 @@ const About = () => {
                   Our Mission
                 </h2>
                 <p className="text-muted-foreground mb-4">
-                  UniLibrary was founded with a singular vision: to democratize access to 
-                  academic resources and empower every student to reach their full potential. 
+                  DTI Library was founded with a singular vision: to democratize access to 
+                  academic resources and empower every student to reach their full potential.
                   We believe that quality educational materials should be accessible to all.
                 </p>
                 <p className="text-muted-foreground mb-4">
@@ -97,8 +97,8 @@ const About = () => {
                   current, relevant, and comprehensive.
                 </p>
                 <p className="text-muted-foreground">
-                  Whether you're preparing for exams, conducting research, or simply expanding 
-                  your knowledge, UniLibrary is your trusted academic companion.
+                  Whether you are preparing for exams, conducting research, or simply expanding 
+                  your knowledge, DTI Library is your trusted academic companion.
                 </p>
               </div>
               <div className="bg-muted rounded-lg p-8">

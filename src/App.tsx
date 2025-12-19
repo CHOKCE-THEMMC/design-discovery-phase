@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/hooks/use-theme";
 import { AuthProvider } from "@/hooks/use-auth";
+import { NotificationsProvider } from "@/hooks/use-notifications";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -16,6 +17,7 @@ import Tutorials from "./pages/Tutorials";
 import Browse from "./pages/Browse";
 import About from "./pages/About";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import MyMaterials from "./pages/lecturer/MyMaterials";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,31 +27,41 @@ const App = () => (
     <ThemeProvider>
       <BrowserRouter>
         <AuthProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/books" element={<Books />} />
-              <Route path="/lecture-notes" element={<LectureNotes />} />
-              <Route path="/past-papers" element={<PastPapers />} />
-              <Route path="/tutorials" element={<Tutorials />} />
-              <Route path="/browse" element={<Browse />} />
-              <Route path="/about" element={<About />} />
-              <Route 
-                path="/admin" 
-                element={
-                  <ProtectedRoute requireAdmin>
-                    <AdminDashboard />
-                  </ProtectedRoute>
-                } 
-              />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </TooltipProvider>
+          <NotificationsProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/books" element={<Books />} />
+                <Route path="/lecture-notes" element={<LectureNotes />} />
+                <Route path="/past-papers" element={<PastPapers />} />
+                <Route path="/tutorials" element={<Tutorials />} />
+                <Route path="/browse" element={<Browse />} />
+                <Route path="/about" element={<About />} />
+                <Route 
+                  path="/my-materials" 
+                  element={
+                    <ProtectedRoute>
+                      <MyMaterials />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin" 
+                  element={
+                    <ProtectedRoute requireAdmin>
+                      <AdminDashboard />
+                    </ProtectedRoute>
+                  } 
+                />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </TooltipProvider>
+          </NotificationsProvider>
         </AuthProvider>
       </BrowserRouter>
     </ThemeProvider>
