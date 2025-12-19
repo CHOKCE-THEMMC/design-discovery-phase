@@ -10,10 +10,10 @@ const Footer = () => {
           <div className="space-y-4">
             <Link to="/" className="flex items-center gap-2">
               <BookOpen className="h-8 w-8" />
-              <span className="font-display text-xl font-bold">UniLibrary</span>
+              <span className="font-display text-xl font-bold">DTI Library</span>
             </Link>
             <p className="text-primary-foreground/80 text-sm leading-relaxed">
-              Your academic companion for accessing books, lecture notes, tutorials, 
+              DESTINATION TRAINING INSTITUTE - Your academic companion for accessing books, lecture notes, tutorials, 
               and past papers. Empowering students and educators alike.
             </p>
           </div>
@@ -76,7 +76,7 @@ const Footer = () => {
 
         <div className="border-t border-primary-foreground/20 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-primary-foreground/60">
-            © {new Date().getFullYear()} UniLibrary. All rights reserved.
+            © {new Date().getFullYear()} DESTINATION TRAINING INSTITUTE Library. All rights reserved.
           </p>
           <div className="flex gap-6">
             <Link to="/privacy" className="text-sm text-primary-foreground/60 hover:text-primary-foreground transition-colors">
