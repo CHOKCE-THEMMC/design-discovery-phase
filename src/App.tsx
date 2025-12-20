@@ -16,6 +16,8 @@ import PastPapers from "./pages/PastPapers";
 import Tutorials from "./pages/Tutorials";
 import Browse from "./pages/Browse";
 import About from "./pages/About";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import MyMaterials from "./pages/lecturer/MyMaterials";
 import NotFound from "./pages/NotFound";
@@ -41,6 +43,8 @@ const App = () => (
                 <Route path="/tutorials" element={<Tutorials />} />
                 <Route path="/browse" element={<Browse />} />
                 <Route path="/about" element={<About />} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/terms" element={<Terms />} />
                 <Route 
                   path="/my-materials" 
                   element={
