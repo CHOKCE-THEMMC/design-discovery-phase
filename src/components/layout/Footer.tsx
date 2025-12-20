@@ -22,16 +22,46 @@ const Footer = () => {
           <div>
             <h4 className="font-display text-lg font-semibold mb-4">Quick Links</h4>
             <ul className="space-y-2">
-              {["Home", "Browse Materials", "Tutorials", "Past Papers", "About Us"].map((link) => (
-                <li key={link}>
-                  <Link 
-                    to={link === "Home" ? "/" : `/${link.toLowerCase().replace(/\s+/g, '-')}`}
-                    className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
-                  >
-                    {link}
-                  </Link>
-                </li>
-              ))}
+              <li>
+                <Link 
+                  to="/"
+                  className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+                >
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="/browse"
+                  className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+                >
+                  Browse Materials
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="/tutorials"
+                  className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+                >
+                  Tutorials
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="/past-papers"
+                  className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+                >
+                  Past Papers
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="/about"
+                  className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+                >
+                  About Us
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -39,16 +69,46 @@ const Footer = () => {
           <div>
             <h4 className="font-display text-lg font-semibold mb-4">Resources</h4>
             <ul className="space-y-2">
-              {["Computer Science", "Engineering", "Business", "Mathematics", "Sciences"].map((dept) => (
-                <li key={dept}>
-                  <Link 
-                    to={`/materials?department=${dept.toLowerCase().replace(/\s+/g, '-')}`}
-                    className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
-                  >
-                    {dept}
-                  </Link>
-                </li>
-              ))}
+              <li>
+                <Link 
+                  to="/books"
+                  className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+                >
+                  Books
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="/lecture-notes"
+                  className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+                >
+                  Lecture Notes
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="/past-papers"
+                  className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+                >
+                  Past Papers
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="/tutorials"
+                  className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+                >
+                  Tutorials
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="/register"
+                  className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+                >
+                  Create Account
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -58,12 +118,12 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-center gap-3 text-sm text-primary-foreground/70">
                 <MapPin className="h-4 w-4 flex-shrink-0" />
-                <span>University Campus, Main Library Building</span>
+                <span>DTI Campus, Main Library Building</span>
               </li>
               <li className="flex items-center gap-3 text-sm text-primary-foreground/70">
                 <Mail className="h-4 w-4 flex-shrink-0" />
-                <a href="mailto:library@university.edu" className="hover:text-primary-foreground transition-colors">
-                  library@university.edu
+                <a href="mailto:library@dti.edu" className="hover:text-primary-foreground transition-colors">
+                  library@dti.edu
                 </a>
               </li>
               <li className="flex items-center gap-3 text-sm text-primary-foreground/70">

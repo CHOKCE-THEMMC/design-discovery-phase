@@ -1,10 +1,10 @@
-import { useState } from "react";
-import { Book } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Book, Loader2 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import MaterialCard from "@/components/materials/MaterialCard";
 import MaterialsFilter from "@/components/materials/MaterialsFilter";
-import { mockBooks } from "@/data/mockMaterials";
+import { useMaterials } from "@/hooks/use-materials";
 import {
   Pagination,
   PaginationContent,
@@ -22,16 +22,33 @@ const Books = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
-  const filteredBooks = mockBooks.filter((book) => {
-    const matchesSearch =
-      book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      book.author.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesDepartment =
-      selectedDepartment === "All Departments" || book.department === selectedDepartment;
-    const matchesYear =
-      selectedYear === "All Years" || book.year.toString() === selectedYear;
-    return matchesSearch && matchesDepartment && matchesYear;
-  });
+  const { data: books = [], isLoading } = useMaterials("book");
+
+  const filteredBooks = useMemo(() => {
+    let result = books.filter((book) => {
+      const matchesSearch =
+        book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        book.author.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesDepartment =
+        selectedDepartment === "All Departments" || book.department === selectedDepartment;
+      const matchesYear =
+        selectedYear === "All Years" || book.year.toString() === selectedYear;
+      return matchesSearch && matchesDepartment && matchesYear;
+    });
+
+    // Apply sorting
+    if (sortBy === "newest") {
+      result.sort((a, b) => b.year - a.year);
+    } else if (sortBy === "oldest") {
+      result.sort((a, b) => a.year - b.year);
+    } else if (sortBy === "popular") {
+      result.sort((a, b) => b.downloads - a.downloads);
+    } else if (sortBy === "title") {
+      result.sort((a, b) => a.title.localeCompare(b.title));
+    }
+
+    return result;
+  }, [books, searchQuery, selectedDepartment, selectedYear, sortBy]);
 
   const totalPages = Math.ceil(filteredBooks.length / itemsPerPage);
   const paginatedBooks = filteredBooks.slice(
@@ -86,8 +103,12 @@ const Books = () => {
               </p>
             </div>
 
-            {/* Books Grid */}
-            {paginatedBooks.length > 0 ? (
+            {/* Loading State */}
+            {isLoading ? (
+              <div className="flex items-center justify-center py-16">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : paginatedBooks.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {paginatedBooks.map((book) => (
                   <MaterialCard key={book.id} material={book} />

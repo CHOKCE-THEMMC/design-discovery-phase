@@ -1,6 +1,8 @@
 import { Book, FileText, ScrollText, GraduationCap, Download, Eye, Calendar, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export interface Material {
   id: string;
@@ -11,7 +13,9 @@ export interface Material {
   year: number;
   description: string;
   downloads: number;
-  coverColor?: string;
+  fileUrl?: string;
+  fileName?: string;
+  thumbnailUrl?: string;
 }
 
 interface MaterialCardProps {
@@ -35,6 +39,44 @@ const typeColors = {
 const MaterialCard = ({ material }: MaterialCardProps) => {
   const Icon = typeIcons[material.type];
   const colorClass = typeColors[material.type];
+
+  const handlePreview = () => {
+    if (material.fileUrl) {
+      window.open(material.fileUrl, "_blank");
+    } else {
+      toast.info("Preview not available for this material");
+    }
+  };
+
+  const handleDownload = async () => {
+    if (!material.fileUrl) {
+      toast.info("Download not available for this material");
+      return;
+    }
+
+    try {
+      // Increment download count
+      await supabase
+        .from("materials")
+        .update({ download_count: (material.downloads || 0) + 1 })
+        .eq("id", material.id);
+
+      // Trigger download
+      const link = document.createElement("a");
+      link.href = material.fileUrl;
+      link.download = material.fileName || material.title;
+      link.target = "_blank";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.success("Download started!");
+    } catch (error) {
+      console.error("Download error:", error);
+      // Still try to download even if count update fails
+      window.open(material.fileUrl, "_blank");
+    }
+  };
 
   return (
     <div className="book-card bg-card group">
@@ -79,11 +121,11 @@ const MaterialCard = ({ material }: MaterialCardProps) => {
         </Badge>
         
         <div className="flex gap-2 pt-2">
-          <Button variant="outline" size="sm" className="flex-1 text-xs">
+          <Button variant="outline" size="sm" className="flex-1 text-xs" onClick={handlePreview}>
             <Eye className="h-3.5 w-3.5 mr-1" />
             Preview
           </Button>
-          <Button size="sm" className="flex-1 text-xs">
+          <Button size="sm" className="flex-1 text-xs" onClick={handleDownload}>
             <Download className="h-3.5 w-3.5 mr-1" />
             Download
           </Button>
