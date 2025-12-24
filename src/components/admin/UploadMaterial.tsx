@@ -40,12 +40,25 @@ export function UploadMaterial() {
   });
   const [file, setFile] = useState<File | null>(null);
 
+  const allowedTypes = [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'text/plain',
+  ];
+
+  const allowedExtensions = ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.txt'];
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
-      // Check if it's a PDF
-      if (selectedFile.type !== 'application/pdf') {
-        toast.error('Please upload a PDF file');
+      const fileExtension = '.' + selectedFile.name.split('.').pop()?.toLowerCase();
+      const isValidType = allowedTypes.includes(selectedFile.type) || allowedExtensions.includes(fileExtension);
+      
+      if (!isValidType) {
+        toast.error('Please upload a PDF, Word document, Excel file, or text file');
         return;
       }
       // Check file size (max 20MB)
@@ -246,12 +259,12 @@ export function UploadMaterial() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="file">Upload PDF *</Label>
+            <Label htmlFor="file">Upload File *</Label>
             <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
               <input
                 type="file"
                 id="file"
-                accept=".pdf"
+                accept=".pdf,.doc,.docx,.xls,.xlsx,.txt"
                 onChange={handleFileChange}
                 className="hidden"
               />
@@ -272,7 +285,7 @@ export function UploadMaterial() {
                     <p className="text-muted-foreground">
                       Click to upload or drag and drop
                     </p>
-                    <p className="text-sm text-muted-foreground">PDF only (max 20MB)</p>
+                    <p className="text-sm text-muted-foreground">PDF, DOCX, Excel, TXT (max 20MB)</p>
                   </div>
                 )}
               </label>

@@ -7,10 +7,12 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
+import { useLibraryStats, formatStatCount } from "@/hooks/use-library-stats";
 
 const Login = () => {
   const navigate = useNavigate();
   const { signIn, user, loading: authLoading } = useAuth();
+  const { data: stats } = useLibraryStats();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -42,6 +44,13 @@ const Login = () => {
     toast.success('Welcome back!');
     navigate('/');
   };
+
+  const features = [
+    `${stats ? formatStatCount(stats.books) : "0+"} Books`,
+    `${stats ? formatStatCount(stats.lectureNotes) : "0+"} Lecture Notes`,
+    `${stats ? formatStatCount(stats.pastPapers) : "0+"} Past Papers`,
+    `${stats ? formatStatCount(stats.tutorials) : "0+"} Video Tutorials`
+  ];
 
   if (authLoading) {
     return (
@@ -199,12 +208,7 @@ const Login = () => {
 
           {/* Features */}
           <div className="mt-12 grid grid-cols-2 gap-4 text-left">
-            {[
-              "10,000+ Books",
-              "5,000+ Lecture Notes",
-              "3,000+ Past Papers",
-              "500+ Video Tutorials"
-            ].map((feature) => (
+            {features.map((feature) => (
               <div key={feature} className="flex items-center gap-2 text-white/90">
                 <div className="w-2 h-2 rounded-full bg-library-gold" />
                 <span className="text-sm">{feature}</span>
