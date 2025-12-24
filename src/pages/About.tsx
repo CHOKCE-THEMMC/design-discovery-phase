@@ -3,13 +3,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-
-const stats = [
-  { value: "50,000+", label: "Academic Resources", icon: BookOpen },
-  { value: "25,000+", label: "Active Students", icon: Users },
-  { value: "500+", label: "Faculty Contributors", icon: Award },
-  { value: "50+", label: "Departments Covered", icon: Globe },
-];
+import { useLibraryStats, formatStatCount } from "@/hooks/use-library-stats";
 
 const team = [
   {
@@ -35,6 +29,15 @@ const team = [
 ];
 
 const About = () => {
+  const { data: libraryStats } = useLibraryStats();
+
+  const stats = [
+    { value: libraryStats ? formatStatCount(libraryStats.totalResources) : "0+", label: "Academic Resources", icon: BookOpen },
+    { value: libraryStats ? formatStatCount(libraryStats.activeStudents) : "0+", label: "Active Students", icon: Users },
+    { value: libraryStats ? formatStatCount(libraryStats.lecturers) : "0+", label: "Faculty Contributors", icon: Award },
+    { value: libraryStats ? formatStatCount(libraryStats.departments) : "0+", label: "Departments Covered", icon: Globe },
+  ];
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Navbar />

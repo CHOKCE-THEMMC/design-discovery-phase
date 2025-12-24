@@ -1,8 +1,11 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, UserPlus, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLibraryStats, formatStatCount } from "@/hooks/use-library-stats";
 
 const CTASection = () => {
+  const { data: stats } = useLibraryStats();
+
   return (
     <section className="py-20 bg-background">
       <div className="container mx-auto px-4">
@@ -48,17 +51,23 @@ const CTASection = () => {
             {/* Trust Indicators */}
             <div className="flex flex-wrap items-center justify-center gap-6 mt-10 pt-8 border-t border-white/20">
               <div className="text-center">
-                <div className="text-2xl font-bold text-white">15,000+</div>
+                <div className="text-2xl font-bold text-white">
+                  {stats ? formatStatCount(stats.activeStudents) : "0+"}
+                </div>
                 <div className="text-sm text-white/70">Active Students</div>
               </div>
               <div className="w-px h-10 bg-white/20 hidden sm:block" />
               <div className="text-center">
-                <div className="text-2xl font-bold text-white">500+</div>
+                <div className="text-2xl font-bold text-white">
+                  {stats ? formatStatCount(stats.lecturers) : "0+"}
+                </div>
                 <div className="text-sm text-white/70">Lecturers</div>
               </div>
               <div className="w-px h-10 bg-white/20 hidden sm:block" />
               <div className="text-center">
-                <div className="text-2xl font-bold text-white">18,000+</div>
+                <div className="text-2xl font-bold text-white">
+                  {stats ? formatStatCount(stats.totalResources) : "0+"}
+                </div>
                 <div className="text-sm text-white/70">Resources</div>
               </div>
             </div>

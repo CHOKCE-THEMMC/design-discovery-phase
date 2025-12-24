@@ -1,50 +1,53 @@
 import { Link } from "react-router-dom";
 import { BookOpen, FileText, ScrollText, Video, ArrowRight } from "lucide-react";
-
-const categories = [
-  {
-    id: "books",
-    title: "Books",
-    description: "Comprehensive textbooks and reference materials across all departments",
-    icon: BookOpen,
-    count: "10,000+",
-    color: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
-    borderColor: "border-blue-500/30",
-    href: "/materials?type=books",
-  },
-  {
-    id: "lecture-notes",
-    title: "Lecture Notes",
-    description: "Detailed notes from lecturers covering course materials and key concepts",
-    icon: FileText,
-    count: "5,000+",
-    color: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
-    borderColor: "border-emerald-500/30",
-    href: "/materials?type=lecture-notes",
-  },
-  {
-    id: "past-papers",
-    title: "Past Papers",
-    description: "Previous examination papers with solutions for exam preparation",
-    icon: ScrollText,
-    count: "3,000+",
-    color: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
-    borderColor: "border-amber-500/30",
-    href: "/materials?type=past-papers",
-  },
-  {
-    id: "tutorials",
-    title: "Video Tutorials",
-    description: "Step-by-step video guides and educational content from instructors",
-    icon: Video,
-    count: "500+",
-    color: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
-    borderColor: "border-purple-500/30",
-    href: "/tutorials",
-  },
-];
+import { useLibraryStats, formatStatCount } from "@/hooks/use-library-stats";
 
 const CategoriesSection = () => {
+  const { data: stats } = useLibraryStats();
+
+  const categories = [
+    {
+      id: "books",
+      title: "Books",
+      description: "Comprehensive textbooks and reference materials across all departments",
+      icon: BookOpen,
+      count: stats ? formatStatCount(stats.books) : "0+",
+      color: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+      borderColor: "border-blue-500/30",
+      href: "/materials?type=books",
+    },
+    {
+      id: "lecture-notes",
+      title: "Lecture Notes",
+      description: "Detailed notes from lecturers covering course materials and key concepts",
+      icon: FileText,
+      count: stats ? formatStatCount(stats.lectureNotes) : "0+",
+      color: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+      borderColor: "border-emerald-500/30",
+      href: "/materials?type=lecture-notes",
+    },
+    {
+      id: "past-papers",
+      title: "Past Papers",
+      description: "Previous examination papers with solutions for exam preparation",
+      icon: ScrollText,
+      count: stats ? formatStatCount(stats.pastPapers) : "0+",
+      color: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+      borderColor: "border-amber-500/30",
+      href: "/materials?type=past-papers",
+    },
+    {
+      id: "tutorials",
+      title: "Video Tutorials",
+      description: "Step-by-step video guides and educational content from instructors",
+      icon: Video,
+      count: stats ? formatStatCount(stats.tutorials) : "0+",
+      color: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
+      borderColor: "border-purple-500/30",
+      href: "/tutorials",
+    },
+  ];
+
   return (
     <section className="py-20 bg-background">
       <div className="container mx-auto px-4">

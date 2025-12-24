@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useLibraryStats, formatStatCount } from "@/hooks/use-library-stats";
 
 const heroMessages = [
   { text: "Discover Knowledge,", highlight: "Empower", suffix: "Your Learning" },
@@ -17,6 +18,7 @@ const HeroSection = () => {
   const [messageIndex, setMessageIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const navigate = useNavigate();
+  const { data: stats } = useLibraryStats();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -37,11 +39,11 @@ const HeroSection = () => {
     }
   };
 
-  const stats = [
-    { icon: BookOpen, label: "Books", count: "10,000+" },
-    { icon: FileText, label: "Lecture Notes", count: "5,000+" },
-    { icon: GraduationCap, label: "Past Papers", count: "3,000+" },
-    { icon: Video, label: "Tutorials", count: "500+" },
+  const statItems = [
+    { icon: BookOpen, label: "Books", count: stats ? formatStatCount(stats.books) : "0+" },
+    { icon: FileText, label: "Lecture Notes", count: stats ? formatStatCount(stats.lectureNotes) : "0+" },
+    { icon: GraduationCap, label: "Past Papers", count: stats ? formatStatCount(stats.pastPapers) : "0+" },
+    { icon: Video, label: "Tutorials", count: stats ? formatStatCount(stats.tutorials) : "0+" },
   ];
 
   const currentMessage = heroMessages[messageIndex];
@@ -108,7 +110,7 @@ const HeroSection = () => {
 
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 animate-slide-up" style={{ animationDelay: '0.4s' }}>
-            {stats.map((stat, index) => (
+            {statItems.map((stat) => (
               <div 
                 key={stat.label}
                 className="flex flex-col items-center p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-colors"
