@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { BookOpen, Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone, MapPin, Book } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -8,9 +8,17 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="space-y-4">
-            <Link to="/" className="flex items-center gap-2">
-              <BookOpen className="h-8 w-8" />
-              <span className="font-display text-xl font-bold">DTI Library</span>
+            <Link to="/" className="flex items-center gap-2 group">
+              <div className="relative">
+                <Book className="h-8 w-8 text-primary-foreground" />
+                <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-library-gold rounded-full" />
+              </div>
+              <div className="flex flex-col leading-none">
+                <span className="font-display text-xl font-bold text-primary-foreground">DTI Library</span>
+                <span className="text-[10px] text-primary-foreground/70 tracking-wider uppercase">
+                  Destination Training Institute
+                </span>
+              </div>
             </Link>
             <p className="text-primary-foreground/80 text-sm leading-relaxed">
               DESTINATION TRAINING INSTITUTE - Your academic companion for accessing books, lecture notes, tutorials, 

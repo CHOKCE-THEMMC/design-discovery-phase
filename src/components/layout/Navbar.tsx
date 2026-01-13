@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, BookOpen, Search, Bell, ChevronDown, User, LogOut, Settings, Shield, FileText } from "lucide-react";
+import { Menu, X, Search, Bell, ChevronDown, User, LogOut, Shield, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -18,6 +18,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import ThemeToggle from "@/components/theme/ThemeToggle";
+import Logo from "@/components/layout/Logo";
 import { useAuth } from "@/hooks/use-auth";
 import { useNotifications } from "@/hooks/use-notifications";
 import { cn } from "@/lib/utils";
@@ -63,15 +64,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group">
-            <div className="relative">
-              <BookOpen className="h-8 w-8 text-primary transition-transform group-hover:scale-110" />
-              <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-library-gold" />
-            </div>
-            <span className="font-display text-lg font-bold text-foreground hidden sm:inline">
-              DTI Library
-            </span>
-          </Link>
+          <Logo size="md" />
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6">

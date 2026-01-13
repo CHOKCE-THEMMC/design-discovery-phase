@@ -16,6 +16,10 @@ export interface Material {
   fileUrl?: string;
   fileName?: string;
   thumbnailUrl?: string;
+  isVideo?: boolean;
+  videoUrl?: string;
+  contentType?: string;
+  previewPages?: number;
 }
 
 // Map database type to frontend type
@@ -42,6 +46,10 @@ const transformMaterial = (row: MaterialRow): Material => ({
   fileUrl: row.file_url || undefined,
   fileName: row.file_name || undefined,
   thumbnailUrl: row.thumbnail_url || undefined,
+  isVideo: (row as any).is_video || false,
+  videoUrl: (row as any).video_url || undefined,
+  contentType: (row as any).content_type || 'document',
+  previewPages: (row as any).preview_pages || 3,
 });
 
 export const useMaterials = (type?: Database["public"]["Enums"]["material_type"]) => {

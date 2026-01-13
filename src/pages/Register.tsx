@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { BookOpen, Mail, Lock, Eye, EyeOff, User, GraduationCap, ArrowRight, Loader2 } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, User, GraduationCap, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
+import Logo from "@/components/layout/Logo";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -66,7 +67,7 @@ const Register = () => {
       return;
     }
 
-    toast.success('Account created successfully! Welcome to UniLibrary.');
+    toast.success('Account created successfully! Welcome to DTI Library.');
     navigate('/');
   };
 
@@ -123,10 +124,9 @@ const Register = () => {
       <div className="flex-1 flex items-center justify-center p-8 bg-background">
         <div className="w-full max-w-md">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 mb-8">
-            <BookOpen className="h-8 w-8 text-primary" />
-            <span className="font-display text-2xl font-bold text-foreground">UniLibrary</span>
-          </Link>
+          <div className="mb-8">
+            <Logo size="lg" />
+          </div>
 
           {/* Header */}
           <div className="mb-8">

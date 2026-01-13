@@ -19,6 +19,7 @@ export type Database = {
           approved_at: string | null
           approved_by: string | null
           author: string | null
+          content_type: string | null
           created_at: string
           department: string
           description: string | null
@@ -27,18 +28,22 @@ export type Database = {
           file_size: number | null
           file_url: string | null
           id: string
+          is_video: boolean | null
+          preview_pages: number | null
           status: Database["public"]["Enums"]["material_status"]
           thumbnail_url: string | null
           title: string
           type: Database["public"]["Enums"]["material_type"]
           updated_at: string
           uploaded_by: string | null
+          video_url: string | null
           year: number | null
         }
         Insert: {
           approved_at?: string | null
           approved_by?: string | null
           author?: string | null
+          content_type?: string | null
           created_at?: string
           department: string
           description?: string | null
@@ -47,18 +52,22 @@ export type Database = {
           file_size?: number | null
           file_url?: string | null
           id?: string
+          is_video?: boolean | null
+          preview_pages?: number | null
           status?: Database["public"]["Enums"]["material_status"]
           thumbnail_url?: string | null
           title: string
           type: Database["public"]["Enums"]["material_type"]
           updated_at?: string
           uploaded_by?: string | null
+          video_url?: string | null
           year?: number | null
         }
         Update: {
           approved_at?: string | null
           approved_by?: string | null
           author?: string | null
+          content_type?: string | null
           created_at?: string
           department?: string
           description?: string | null
@@ -67,12 +76,15 @@ export type Database = {
           file_size?: number | null
           file_url?: string | null
           id?: string
+          is_video?: boolean | null
+          preview_pages?: number | null
           status?: Database["public"]["Enums"]["material_status"]
           thumbnail_url?: string | null
           title?: string
           type?: Database["public"]["Enums"]["material_type"]
           updated_at?: string
           uploaded_by?: string | null
+          video_url?: string | null
           year?: number | null
         }
         Relationships: []
