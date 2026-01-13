@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { BookOpen, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, Book } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { useLibraryStats, formatStatCount } from "@/hooks/use-library-stats";
+import Logo from "@/components/layout/Logo";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -66,10 +67,9 @@ const Login = () => {
       <div className="flex-1 flex items-center justify-center p-8 bg-background">
         <div className="w-full max-w-md">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 mb-8">
-            <BookOpen className="h-8 w-8 text-primary" />
-            <span className="font-display text-2xl font-bold text-foreground">UniLibrary</span>
-          </Link>
+          <div className="mb-8">
+            <Logo size="lg" />
+          </div>
 
           {/* Header */}
           <div className="mb-8">
@@ -196,14 +196,14 @@ const Login = () => {
 
         <div className="relative z-10 max-w-lg text-center">
           <div className="mb-8">
-            <BookOpen className="h-20 w-20 text-library-gold mx-auto" />
+            <Book className="h-20 w-20 text-library-gold mx-auto" />
           </div>
           <h2 className="font-display text-4xl font-bold text-white mb-4">
             Your Gateway to Knowledge
           </h2>
           <p className="text-lg text-white/80">
             Access thousands of academic resources, connect with peers, and 
-            accelerate your learning journey with UniLibrary.
+            accelerate your learning journey with DTI Library.
           </p>
 
           {/* Features */}

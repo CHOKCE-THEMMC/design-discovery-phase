@@ -1,8 +1,10 @@
-import { Book, FileText, ScrollText, GraduationCap, Download, Eye, Calendar, User } from "lucide-react";
+import { Book, FileText, ScrollText, GraduationCap, Download, Eye, Calendar, User, Video, Link as LinkIcon, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/use-auth";
+import { Link } from "react-router-dom";
 
 export interface Material {
   id: string;
@@ -16,6 +18,10 @@ export interface Material {
   fileUrl?: string;
   fileName?: string;
   thumbnailUrl?: string;
+  isVideo?: boolean;
+  videoUrl?: string;
+  contentType?: string;
+  previewPages?: number;
 }
 
 interface MaterialCardProps {
@@ -39,17 +45,50 @@ const typeColors = {
 const MaterialCard = ({ material }: MaterialCardProps) => {
   const Icon = typeIcons[material.type];
   const colorClass = typeColors[material.type];
+  const { user } = useAuth();
+
+  const isVideo = material.isVideo || material.contentType === 'video_file' || material.contentType === 'video_link';
+  const isVideoLink = material.contentType === 'video_link';
 
   const handlePreview = () => {
+    // If user is not logged in, show limited preview notice
+    if (!user) {
+      toast.info(
+        isVideo 
+          ? `Preview limited to ${material.previewPages || 30} seconds for guests. Sign in for full access.`
+          : `Preview limited to ${material.previewPages || 3} pages for guests. Sign in for full access.`,
+        {
+          action: {
+            label: "Sign In",
+            onClick: () => window.location.href = "/login",
+          },
+        }
+      );
+    }
+
     if (material.fileUrl) {
       window.open(material.fileUrl, "_blank");
+    } else if (material.videoUrl) {
+      window.open(material.videoUrl, "_blank");
     } else {
       toast.info("Preview not available for this material");
     }
   };
 
   const handleDownload = async () => {
-    if (!material.fileUrl) {
+    // Require login for downloads
+    if (!user) {
+      toast.error("Please sign in to download materials", {
+        action: {
+          label: "Sign In",
+          onClick: () => window.location.href = "/login",
+        },
+      });
+      return;
+    }
+
+    const downloadUrl = material.fileUrl || material.videoUrl;
+    if (!downloadUrl) {
       toast.info("Download not available for this material");
       return;
     }
@@ -63,7 +102,7 @@ const MaterialCard = ({ material }: MaterialCardProps) => {
 
       // Trigger download
       const link = document.createElement("a");
-      link.href = material.fileUrl;
+      link.href = downloadUrl;
       link.download = material.fileName || material.title;
       link.target = "_blank";
       document.body.appendChild(link);
@@ -74,7 +113,7 @@ const MaterialCard = ({ material }: MaterialCardProps) => {
     } catch (error) {
       console.error("Download error:", error);
       // Still try to download even if count update fails
-      window.open(material.fileUrl, "_blank");
+      window.open(downloadUrl, "_blank");
     }
   };
 
@@ -82,13 +121,36 @@ const MaterialCard = ({ material }: MaterialCardProps) => {
     <div className="book-card bg-card group">
       <div className={`h-32 ${colorClass} relative overflow-hidden`}>
         <div className="absolute inset-0 bg-gradient-to-br from-black/10 to-transparent" />
-        <Icon className="absolute bottom-4 right-4 h-16 w-16 text-white/20" />
-        <Badge 
-          variant="secondary" 
-          className="absolute top-3 left-3 bg-white/90 text-foreground text-xs"
-        >
-          {material.type.replace("-", " ")}
-        </Badge>
+        {isVideo ? (
+          isVideoLink ? (
+            <LinkIcon className="absolute bottom-4 right-4 h-16 w-16 text-white/20" />
+          ) : (
+            <Video className="absolute bottom-4 right-4 h-16 w-16 text-white/20" />
+          )
+        ) : (
+          <Icon className="absolute bottom-4 right-4 h-16 w-16 text-white/20" />
+        )}
+        <div className="absolute top-3 left-3 flex gap-2">
+          <Badge 
+            variant="secondary" 
+            className="bg-white/90 text-foreground text-xs"
+          >
+            {material.type.replace("-", " ")}
+          </Badge>
+          {isVideo && (
+            <Badge variant="secondary" className="bg-red-500 text-white text-xs">
+              {isVideoLink ? 'Video Link' : 'Video'}
+            </Badge>
+          )}
+        </div>
+        {!user && (
+          <div className="absolute bottom-3 right-3">
+            <Badge variant="outline" className="bg-black/50 text-white border-white/30 text-xs flex items-center gap-1">
+              <Lock className="h-3 w-3" />
+              Limited Preview
+            </Badge>
+          </div>
+        )}
       </div>
       
       <div className="p-4 space-y-3">
@@ -126,8 +188,17 @@ const MaterialCard = ({ material }: MaterialCardProps) => {
             Preview
           </Button>
           <Button size="sm" className="flex-1 text-xs" onClick={handleDownload}>
-            <Download className="h-3.5 w-3.5 mr-1" />
-            Download
+            {!user ? (
+              <>
+                <Lock className="h-3.5 w-3.5 mr-1" />
+                Sign In
+              </>
+            ) : (
+              <>
+                <Download className="h-3.5 w-3.5 mr-1" />
+                Download
+              </>
+            )}
           </Button>
         </div>
       </div>
