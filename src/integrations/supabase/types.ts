@@ -172,24 +172,7 @@ export type Database = {
       }
     }
     Views: {
-      public_profiles: {
-        Row: {
-          avatar_url: string | null
-          full_name: string | null
-          user_id: string | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          full_name?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          avatar_url?: string | null
-          full_name?: string | null
-          user_id?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       has_role: {
