@@ -6,16 +6,28 @@ import { toast } from 'sonner';
 
 type AppRole = 'admin' | 'moderator' | 'user';
 
+interface UserProfile {
+  id: string;
+  user_id: string;
+  full_name: string | null;
+  email: string | null;
+  avatar_url: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
   userRole: AppRole | null;
+  userProfile: UserProfile | null;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   isAdmin: boolean;
   isModerator: boolean;
+  isLecturer: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -25,6 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState<AppRole | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
   const fetchUserRole = async (userId: string) => {
     try {
@@ -45,6 +58,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const fetchUserProfile = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error fetching user profile:', error);
+        return null;
+      }
+      return data as UserProfile | null;
+    } catch (err) {
+      console.error('Error in fetchUserProfile:', err);
+      return null;
+    }
+  };
+
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -52,13 +84,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         
-        // Defer role fetch with setTimeout to avoid deadlock
+        // Defer role and profile fetch with setTimeout to avoid deadlock
         if (session?.user) {
           setTimeout(() => {
             fetchUserRole(session.user.id).then(setUserRole);
+            fetchUserProfile(session.user.id).then(setUserProfile);
           }, 0);
         } else {
           setUserRole(null);
+          setUserProfile(null);
         }
         
         setLoading(false);
@@ -72,6 +106,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       if (session?.user) {
         fetchUserRole(session.user.id).then(setUserRole);
+        fetchUserProfile(session.user.id).then(setUserProfile);
       }
       
       setLoading(false);
@@ -135,6 +170,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const isAdmin = userRole === 'admin';
   const isModerator = userRole === 'moderator' || userRole === 'admin';
+  const isLecturer = userRole === 'moderator' || userRole === 'admin';
 
   return (
     <AuthContext.Provider value={{
@@ -142,11 +178,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       session,
       loading,
       userRole,
+      userProfile,
       signUp,
       signIn,
       signOut,
       isAdmin,
       isModerator,
+      isLecturer,
     }}>
       {children}
     </AuthContext.Provider>

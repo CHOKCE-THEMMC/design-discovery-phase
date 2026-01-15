@@ -10,6 +10,7 @@ import { useLibraryStats, formatStatCount } from "@/hooks/use-library-stats";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import { useNotifications } from "@/hooks/use-notifications";
+import { supabase } from "@/integrations/supabase/client";
 
 const team = [
   {
@@ -77,16 +78,36 @@ const About = () => {
     setLoading(true);
 
     try {
-      // Log the contact message (in production, this would be stored/emailed)
-      console.log('Contact form submitted:', formData);
+      // Store the contact message in the database
+      const { error: dbError } = await supabase
+        .from('contact_messages')
+        .insert({
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          message: formData.message.trim(),
+          user_id: user?.id || null,
+        });
 
-      // If user is logged in, add a notification
-      if (user) {
-        await addNotification(
-          "Message Sent",
-          "Your message has been sent to the DTI Library team. We'll get back to you soon!",
-          "success"
-        );
+      if (dbError) {
+        console.error("Error saving contact message:", dbError);
+        throw dbError;
+      }
+
+      // Try to send email notification (optional - will fail without RESEND_API_KEY)
+      try {
+        const { error: emailError } = await supabase.functions.invoke('send-contact-email', {
+          body: {
+            name: formData.name.trim(),
+            email: formData.email.trim(),
+            message: formData.message.trim(),
+          }
+        });
+        
+        if (emailError) {
+          console.log('Email notification skipped:', emailError);
+        }
+      } catch (emailErr) {
+        console.log('Email service not configured:', emailErr);
       }
 
       // If user is logged in, add a notification
@@ -106,11 +127,7 @@ const About = () => {
       setTimeout(() => setSubmitted(false), 5000);
     } catch (err) {
       console.error("Error submitting contact form:", err);
-      // Still show success for demo purposes
-      toast.success("Message sent successfully! We'll get back to you soon.");
-      setSubmitted(true);
-      setFormData({ name: "", email: "", message: "" });
-      setTimeout(() => setSubmitted(false), 5000);
+      toast.error("Failed to send message. Please try again.");
     } finally {
       setLoading(false);
     }

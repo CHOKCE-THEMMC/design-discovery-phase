@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, Search, Bell, ChevronDown, User, LogOut, Shield, FileText } from "lucide-react";
+import { Menu, X, Search, Bell, ChevronDown, User, LogOut, Shield, FileText, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -263,6 +263,11 @@ const Navbar = () => {
                     </p>
                   </div>
                   <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/dashboard" className="cursor-pointer">
+                      <LayoutDashboard className="h-4 w-4 mr-2" /> My Dashboard
+                    </Link>
+                  </DropdownMenuItem>
                   {isLecturer && (
                     <DropdownMenuItem asChild>
                       <Link to="/my-materials" className="cursor-pointer">
@@ -277,6 +282,7 @@ const Navbar = () => {
                       </Link>
                     </DropdownMenuItem>
                   )}
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive">
                     <LogOut className="h-4 w-4 mr-2" /> Sign Out
                   </DropdownMenuItem>
