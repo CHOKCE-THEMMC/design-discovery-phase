@@ -63,9 +63,14 @@ const HeroSection = () => {
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mb-6 animate-fade-in">
             <span className="w-2 h-2 rounded-full bg-library-gold animate-pulse" />
             <span className="text-sm text-white/90 font-medium">
-              Welcome to DESTINATION TRAINING INSTITUTE Library Portal
+              🎓 Welcome to DESTINATION TRAINING INSTITUTE Library Portal
             </span>
           </div>
+
+          {/* Welcome Message */}
+          <p className="text-white/60 text-sm md:text-base mb-4 animate-fade-in">
+            Your Gateway to Academic Excellence — Anytime, Anywhere
+          </p>
 
           {/* Heading with Animation */}
           <h1 
@@ -78,9 +83,15 @@ const HeroSection = () => {
           </h1>
 
           {/* Description */}
-          <p className="text-lg md:text-xl text-white/80 mb-8 max-w-2xl mx-auto animate-slide-up" style={{ animationDelay: '0.2s' }}>
+          <p className="text-lg md:text-xl text-white/80 mb-4 max-w-2xl mx-auto animate-slide-up" style={{ animationDelay: '0.2s' }}>
             Access thousands of academic resources including books, lecture notes, 
             past examination papers, and video tutorials. Your academic success starts here.
+          </p>
+          
+          {/* Additional Welcoming Text */}
+          <p className="text-sm md:text-base text-white/60 mb-8 max-w-xl mx-auto animate-slide-up" style={{ animationDelay: '0.25s' }}>
+            Join thousands of students and educators who trust DTI Library for quality learning materials. 
+            Start exploring today — it's free to browse!
           </p>
 
           {/* Search Bar */}

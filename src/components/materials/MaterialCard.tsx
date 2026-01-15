@@ -66,10 +66,19 @@ const MaterialCard = ({ material }: MaterialCardProps) => {
       );
     }
 
-    if (material.fileUrl) {
-      window.open(material.fileUrl, "_blank");
-    } else if (material.videoUrl) {
-      window.open(material.videoUrl, "_blank");
+    const previewUrl = material.fileUrl || material.videoUrl;
+    if (previewUrl) {
+      // For PDFs, use Google Docs viewer to prevent download
+      if (previewUrl.toLowerCase().endsWith('.pdf') || material.contentType === 'document') {
+        const googleDocsUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(previewUrl)}&embedded=true`;
+        window.open(googleDocsUrl, "_blank");
+      } else if (isVideo && material.videoUrl) {
+        // For videos, open directly (YouTube, Vimeo, etc.)
+        window.open(material.videoUrl, "_blank");
+      } else {
+        // For other files, open directly
+        window.open(previewUrl, "_blank");
+      }
     } else {
       toast.info("Preview not available for this material");
     }
