@@ -28,11 +28,14 @@ const FeaturedSection = () => {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-12">
           <div>
             <span className="text-sm font-medium text-library-gold uppercase tracking-wider">
-              Popular Resources
+              🔥 Most Downloaded
             </span>
             <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mt-2">
-              Featured Materials
+              Trending Materials
             </h2>
+            <p className="text-muted-foreground mt-2">
+              Popular resources our students are downloading right now
+            </p>
           </div>
           <Link to="/browse">
             <Button variant="outline" className="group">
@@ -90,14 +93,14 @@ const FeaturedSection = () => {
                   </p>
 
                   {/* Stats */}
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-1">
+                  <div className="flex items-center gap-4 text-sm">
+                    <span className="flex items-center gap-1 text-muted-foreground">
                       <Eye className="h-4 w-4" />
                       {(material.downloads * 2).toLocaleString()}
                     </span>
-                    <span className="flex items-center gap-1">
-                      <Download className="h-4 w-4" />
-                      {material.downloads.toLocaleString()}
+                    <span className="flex items-center gap-1.5 text-primary font-medium bg-primary/10 px-2 py-0.5 rounded-full">
+                      <Download className="h-3.5 w-3.5" />
+                      {material.downloads.toLocaleString()} downloads
                     </span>
                   </div>
                 </div>

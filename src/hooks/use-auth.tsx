@@ -83,7 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signUp = async (email: string, password: string, fullName: string) => {
     const redirectUrl = `${window.location.origin}/`;
     
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -96,6 +96,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     
     if (error) {
       return { error };
+    }
+    
+    // Create a welcome notification for the new user
+    if (data.user) {
+      try {
+        await supabase
+          .from('notifications')
+          .insert({
+            user_id: data.user.id,
+            title: '🎉 Welcome to DTI Library!',
+            message: `Hello ${fullName}! Your account has been created successfully. Start exploring thousands of academic resources now!`,
+            type: 'welcome'
+          });
+      } catch (notifError) {
+        console.log('Could not create welcome notification:', notifError);
+      }
     }
     
     return { error: null };
