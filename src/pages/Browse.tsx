@@ -1,10 +1,12 @@
 import { useState, useMemo } from "react";
-import { Library, Book, FileText, ScrollText, GraduationCap, Loader2 } from "lucide-react";
+import { Library, Book, FileText, ScrollText, GraduationCap } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import MaterialCard from "@/components/materials/MaterialCard";
+import { MaterialCardSkeletonGrid } from "@/components/materials/MaterialCardSkeleton";
 import MaterialsFilter from "@/components/materials/MaterialsFilter";
-import { useAllMaterials, Material } from "@/hooks/use-materials";
+import { useAllMaterials } from "@/hooks/use-materials";
+import { filterAndSortMaterials } from "@/lib/search-utils";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -36,29 +38,13 @@ const Browse = () => {
   const { data: materials = [], isLoading } = useAllMaterials();
 
   const filteredMaterials = useMemo(() => {
-    let result = materials.filter((material) => {
-      const matchesSearch =
-        material.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        material.author.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesDepartment =
-        selectedDepartment === "All Departments" || material.department === selectedDepartment;
-      const matchesYear =
-        selectedYear === "All Years" || material.year.toString() === selectedYear;
-      const matchesType = selectedType === "all" || material.type === selectedType;
-      return matchesSearch && matchesDepartment && matchesYear && matchesType;
+    return filterAndSortMaterials(materials, {
+      searchQuery,
+      department: selectedDepartment,
+      year: selectedYear,
+      type: selectedType,
+      sortBy,
     });
-
-    if (sortBy === "newest") {
-      result.sort((a, b) => b.year - a.year);
-    } else if (sortBy === "oldest") {
-      result.sort((a, b) => a.year - b.year);
-    } else if (sortBy === "popular") {
-      result.sort((a, b) => b.downloads - a.downloads);
-    } else if (sortBy === "title") {
-      result.sort((a, b) => a.title.localeCompare(b.title));
-    }
-
-    return result;
   }, [materials, searchQuery, selectedDepartment, selectedYear, selectedType, sortBy]);
 
   const totalPages = Math.ceil(filteredMaterials.length / itemsPerPage);
@@ -147,9 +133,7 @@ const Browse = () => {
 
             {/* Loading State */}
             {isLoading ? (
-              <div className="flex items-center justify-center py-16">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
+              <MaterialCardSkeletonGrid count={9} />
             ) : paginatedMaterials.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {paginatedMaterials.map((material) => (

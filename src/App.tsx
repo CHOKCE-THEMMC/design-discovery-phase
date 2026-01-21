@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/hooks/use-theme";
 import { AuthProvider } from "@/hooks/use-auth";
 import { NotificationsProvider } from "@/hooks/use-notifications";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import PageTransition from "@/components/layout/PageTransition";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -35,6 +36,7 @@ const App = () => (
             <TooltipProvider>
               <Toaster />
               <Sonner />
+              <PageTransition>
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/login" element={<Login />} />
@@ -75,6 +77,7 @@ const App = () => (
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
+              </PageTransition>
             </TooltipProvider>
           </NotificationsProvider>
         </AuthProvider>
