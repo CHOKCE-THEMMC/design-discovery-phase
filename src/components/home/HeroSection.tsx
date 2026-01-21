@@ -74,25 +74,13 @@ const HeroSection = () => {
 
           {/* Heading with Animation */}
           <h1 
-            className={`font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 transition-all duration-500 ${
+            className={`font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-10 transition-all duration-500 ${
               isAnimating ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'
             }`}
           >
             {currentMessage.text}{" "}
             <span className="text-library-gold">{currentMessage.highlight}</span> {currentMessage.suffix}
           </h1>
-
-          {/* Description */}
-          <p className="text-lg md:text-xl text-white/80 mb-4 max-w-2xl mx-auto animate-slide-up" style={{ animationDelay: '0.2s' }}>
-            Access thousands of academic resources including books, lecture notes, 
-            past examination papers, and video tutorials. Your academic success starts here.
-          </p>
-          
-          {/* Additional Welcoming Text */}
-          <p className="text-sm md:text-base text-white/60 mb-8 max-w-xl mx-auto animate-slide-up" style={{ animationDelay: '0.25s' }}>
-            Join thousands of students and educators who trust DTI Library for quality learning materials. 
-            Start exploring today — it's free to browse!
-          </p>
 
           {/* Search Bar */}
           <form 
