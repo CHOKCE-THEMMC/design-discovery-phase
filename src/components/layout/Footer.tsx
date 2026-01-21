@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { Mail, Phone, MapPin, Book } from "lucide-react";
+import { Mail, Phone, MapPin } from "lucide-react";
+import dtiLogo from '@/assets/dti-logo.png';
 
 const Footer = () => {
   return (
@@ -9,10 +10,11 @@ const Footer = () => {
           {/* Brand */}
           <div className="space-y-4">
             <Link to="/" className="flex items-center gap-2 group">
-              <div className="relative">
-                <Book className="h-8 w-8 text-primary-foreground" />
-                <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-library-gold rounded-full" />
-              </div>
+              <img 
+                src={dtiLogo} 
+                alt="DTI Library Logo" 
+                className="h-10 w-10 object-contain"
+              />
               <div className="flex flex-col leading-none">
                 <span className="font-display text-xl font-bold text-primary-foreground">DTI Library</span>
                 <span className="text-[10px] text-primary-foreground/70 tracking-wider uppercase">

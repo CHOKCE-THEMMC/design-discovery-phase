@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Book } from 'lucide-react';
+import dtiLogo from '@/assets/dti-logo.png';
 
 interface LogoProps {
   className?: string;
@@ -10,9 +10,9 @@ interface LogoProps {
 
 const Logo = ({ className = '', showText = true, size = 'md', linkTo = '/' }: LogoProps) => {
   const sizeClasses = {
-    sm: 'h-6 w-6',
-    md: 'h-8 w-8',
-    lg: 'h-12 w-12',
+    sm: 'h-8 w-8',
+    md: 'h-10 w-10',
+    lg: 'h-14 w-14',
   };
 
   const textSizeClasses = {
@@ -23,10 +23,11 @@ const Logo = ({ className = '', showText = true, size = 'md', linkTo = '/' }: Lo
 
   const logoContent = (
     <div className={`flex items-center gap-2 ${className}`}>
-      <div className="relative">
-        <Book className={`${sizeClasses[size]} text-primary`} />
-        <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-library-gold rounded-full" />
-      </div>
+      <img 
+        src={dtiLogo} 
+        alt="DTI Library Logo" 
+        className={`${sizeClasses[size]} object-contain`}
+      />
       {showText && (
         <div className="flex flex-col leading-none">
           <span className={`font-display font-bold text-foreground ${textSizeClasses[size]}`}>
