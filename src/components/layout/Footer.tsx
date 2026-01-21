@@ -13,7 +13,7 @@ const Footer = () => {
               <img 
                 src={dtiLogo} 
                 alt="DTI Library Logo" 
-                className="h-10 w-10 object-contain"
+                className="h-12 w-12 object-contain"
               />
               <div className="flex flex-col leading-none">
                 <span className="font-display text-xl font-bold text-primary-foreground">DTI Library</span>
