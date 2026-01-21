@@ -1,10 +1,11 @@
+import { useState } from "react";
 import { Book, FileText, ScrollText, GraduationCap, Download, Eye, Calendar, User, Video, Link as LinkIcon, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
-import { Link } from "react-router-dom";
+import MaterialPreviewModal from "./MaterialPreviewModal";
 
 export interface Material {
   id: string;
@@ -46,42 +47,13 @@ const MaterialCard = ({ material }: MaterialCardProps) => {
   const Icon = typeIcons[material.type];
   const colorClass = typeColors[material.type];
   const { user } = useAuth();
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const isVideo = material.isVideo || material.contentType === 'video_file' || material.contentType === 'video_link';
   const isVideoLink = material.contentType === 'video_link';
 
   const handlePreview = () => {
-    // If user is not logged in, show limited preview notice
-    if (!user) {
-      toast.info(
-        isVideo 
-          ? `Preview limited to ${material.previewPages || 30} seconds for guests. Sign in for full access.`
-          : `Preview limited to ${material.previewPages || 3} pages for guests. Sign in for full access.`,
-        {
-          action: {
-            label: "Sign In",
-            onClick: () => window.location.href = "/login",
-          },
-        }
-      );
-    }
-
-    const previewUrl = material.fileUrl || material.videoUrl;
-    if (previewUrl) {
-      // For PDFs, use Google Docs viewer to prevent download
-      if (previewUrl.toLowerCase().endsWith('.pdf') || material.contentType === 'document') {
-        const googleDocsUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(previewUrl)}&embedded=true`;
-        window.open(googleDocsUrl, "_blank");
-      } else if (isVideo && material.videoUrl) {
-        // For videos, open directly (YouTube, Vimeo, etc.)
-        window.open(material.videoUrl, "_blank");
-      } else {
-        // For other files, open directly
-        window.open(previewUrl, "_blank");
-      }
-    } else {
-      toast.info("Preview not available for this material");
-    }
+    setIsPreviewOpen(true);
   };
 
   const handleDownload = async () => {
@@ -211,6 +183,12 @@ const MaterialCard = ({ material }: MaterialCardProps) => {
           </Button>
         </div>
       </div>
+      
+      <MaterialPreviewModal 
+        material={material}
+        isOpen={isPreviewOpen}
+        onClose={() => setIsPreviewOpen(false)}
+      />
     </div>
   );
 };

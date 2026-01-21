@@ -1,10 +1,12 @@
 import { useState, useMemo } from "react";
-import { GraduationCap, Play, Clock, Star, Loader2 } from "lucide-react";
+import { GraduationCap, Play, Clock, Star } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import MaterialCard from "@/components/materials/MaterialCard";
+import { MaterialCardSkeletonGrid } from "@/components/materials/MaterialCardSkeleton";
 import MaterialsFilter from "@/components/materials/MaterialsFilter";
 import { useMaterials } from "@/hooks/use-materials";
+import { filterAndSortMaterials } from "@/lib/search-utils";
 import { Badge } from "@/components/ui/badge";
 import {
   Pagination,
@@ -26,28 +28,12 @@ const Tutorials = () => {
   const { data: tutorials = [], isLoading } = useMaterials("tutorial");
 
   const filteredTutorials = useMemo(() => {
-    let result = tutorials.filter((tutorial) => {
-      const matchesSearch =
-        tutorial.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        tutorial.author.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesDepartment =
-        selectedDepartment === "All Departments" || tutorial.department === selectedDepartment;
-      const matchesYear =
-        selectedYear === "All Years" || tutorial.year.toString() === selectedYear;
-      return matchesSearch && matchesDepartment && matchesYear;
+    return filterAndSortMaterials(tutorials, {
+      searchQuery,
+      department: selectedDepartment,
+      year: selectedYear,
+      sortBy,
     });
-
-    if (sortBy === "newest") {
-      result.sort((a, b) => b.year - a.year);
-    } else if (sortBy === "oldest") {
-      result.sort((a, b) => a.year - b.year);
-    } else if (sortBy === "popular") {
-      result.sort((a, b) => b.downloads - a.downloads);
-    } else if (sortBy === "title") {
-      result.sort((a, b) => a.title.localeCompare(b.title));
-    }
-
-    return result;
   }, [tutorials, searchQuery, selectedDepartment, selectedYear, sortBy]);
 
   const totalPages = Math.ceil(filteredTutorials.length / itemsPerPage);
@@ -155,9 +141,7 @@ const Tutorials = () => {
 
             {/* Loading State */}
             {isLoading ? (
-              <div className="flex items-center justify-center py-16">
-                <Loader2 className="h-8 w-8 animate-spin text-library-gold" />
-              </div>
+              <MaterialCardSkeletonGrid count={6} />
             ) : paginatedTutorials.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {paginatedTutorials.map((tutorial) => (

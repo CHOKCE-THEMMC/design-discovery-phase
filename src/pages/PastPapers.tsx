@@ -1,10 +1,12 @@
 import { useState, useMemo } from "react";
-import { ScrollText, Loader2 } from "lucide-react";
+import { ScrollText } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import MaterialCard from "@/components/materials/MaterialCard";
+import { MaterialCardSkeletonGrid } from "@/components/materials/MaterialCardSkeleton";
 import MaterialsFilter from "@/components/materials/MaterialsFilter";
 import { useMaterials } from "@/hooks/use-materials";
+import { filterAndSortMaterials } from "@/lib/search-utils";
 import {
   Pagination,
   PaginationContent,
@@ -25,28 +27,12 @@ const PastPapers = () => {
   const { data: papers = [], isLoading } = useMaterials("past_paper");
 
   const filteredPapers = useMemo(() => {
-    let result = papers.filter((paper) => {
-      const matchesSearch =
-        paper.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        paper.author.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesDepartment =
-        selectedDepartment === "All Departments" || paper.department === selectedDepartment;
-      const matchesYear =
-        selectedYear === "All Years" || paper.year.toString() === selectedYear;
-      return matchesSearch && matchesDepartment && matchesYear;
+    return filterAndSortMaterials(papers, {
+      searchQuery,
+      department: selectedDepartment,
+      year: selectedYear,
+      sortBy,
     });
-
-    if (sortBy === "newest") {
-      result.sort((a, b) => b.year - a.year);
-    } else if (sortBy === "oldest") {
-      result.sort((a, b) => a.year - b.year);
-    } else if (sortBy === "popular") {
-      result.sort((a, b) => b.downloads - a.downloads);
-    } else if (sortBy === "title") {
-      result.sort((a, b) => a.title.localeCompare(b.title));
-    }
-
-    return result;
   }, [papers, searchQuery, selectedDepartment, selectedYear, sortBy]);
 
   const totalPages = Math.ceil(filteredPapers.length / itemsPerPage);
@@ -104,9 +90,7 @@ const PastPapers = () => {
 
             {/* Loading State */}
             {isLoading ? (
-              <div className="flex items-center justify-center py-16">
-                <Loader2 className="h-8 w-8 animate-spin text-library-burgundy" />
-              </div>
+              <MaterialCardSkeletonGrid count={6} />
             ) : paginatedPapers.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {paginatedPapers.map((paper) => (
