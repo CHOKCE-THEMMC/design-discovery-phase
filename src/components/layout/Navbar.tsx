@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, Search, Bell, ChevronDown, User, LogOut, Shield, FileText, LayoutDashboard } from "lucide-react";
+import { Menu, X, Search, Bell, ChevronDown, User, LogOut, Shield, FileText, LayoutDashboard, Bookmark, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,15 +18,15 @@ import {
 } from "@/components/ui/dialog";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 import Logo from "@/components/layout/Logo";
+import SearchAutocomplete from "@/components/search/SearchAutocomplete";
 import { useAuth } from "@/hooks/use-auth";
 import { useNotifications } from "@/hooks/use-notifications";
 import { cn } from "@/lib/utils";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
-  const { user, signOut, isAdmin, isModerator, userRole } = useAuth();
+  const { user, signOut, isAdmin, isModerator } = useAuth();
   const { unreadCount, notifications, markAsRead, markAllAsRead } = useNotifications();
   const location = useLocation();
   const navigate = useNavigate();
@@ -41,15 +40,6 @@ const Navbar = () => {
 
   const handleSignOut = async () => {
     await signOut();
-  };
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/browse?search=${encodeURIComponent(searchQuery)}`);
-      setSearchOpen(false);
-      setSearchQuery("");
-    }
   };
 
   const isActiveLink = (href: string) => {
@@ -172,29 +162,21 @@ const Navbar = () => {
           </div>
 
           {/* Desktop Actions */}
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-2 lg:gap-3">
             <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
               <DialogTrigger asChild>
                 <Button variant="ghost" size="icon" className="text-foreground/70 hover:text-foreground">
                   <Search className="h-5 w-5" />
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-md">
+              <DialogContent className="sm:max-w-lg">
                 <DialogHeader>
                   <DialogTitle>Search Materials</DialogTitle>
                 </DialogHeader>
-                <form onSubmit={handleSearch} className="flex gap-2">
-                  <Input
-                    placeholder="Search for books, notes, papers..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="flex-1"
-                    autoFocus
-                  />
-                  <Button type="submit" className="bg-primary text-primary-foreground hover:bg-primary/90">
-                    Search
-                  </Button>
-                </form>
+                <SearchAutocomplete 
+                  onClose={() => setSearchOpen(false)} 
+                  autoFocus 
+                />
               </DialogContent>
             </Dialog>
             
@@ -255,9 +237,9 @@ const Navbar = () => {
                     </div>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="bg-popover border-border">
+                <DropdownMenuContent align="end" className="bg-popover border-border w-56">
                   <div className="px-3 py-2">
-                    <p className="text-sm font-medium">{user.email}</p>
+                    <p className="text-sm font-medium truncate">{user.email}</p>
                     <p className="text-xs text-muted-foreground capitalize">
                       {isAdmin ? 'Admin' : isModerator ? 'Moderator' : 'User'}
                     </p>
@@ -266,6 +248,16 @@ const Navbar = () => {
                   <DropdownMenuItem asChild>
                     <Link to="/dashboard" className="cursor-pointer">
                       <LayoutDashboard className="h-4 w-4 mr-2" /> My Dashboard
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/bookmarks" className="cursor-pointer">
+                      <Bookmark className="h-4 w-4 mr-2" /> My Bookmarks
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/history" className="cursor-pointer">
+                      <History className="h-4 w-4 mr-2" /> Viewing History
                     </Link>
                   </DropdownMenuItem>
                   {isLecturer && (
@@ -300,10 +292,29 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
-          <button className="md:hidden p-2 text-foreground" onClick={() => setIsOpen(!isOpen)}>
-            {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
+          {/* Mobile Actions */}
+          <div className="flex md:hidden items-center gap-1">
+            <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
+              <DialogTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-9 w-9 text-foreground/70">
+                  <Search className="h-5 w-5" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[90vw] max-w-[95vw]">
+                <DialogHeader>
+                  <DialogTitle>Search Materials</DialogTitle>
+                </DialogHeader>
+                <SearchAutocomplete 
+                  onClose={() => setSearchOpen(false)} 
+                  autoFocus 
+                />
+              </DialogContent>
+            </Dialog>
+            <ThemeToggle />
+            <button className="p-2 text-foreground" onClick={() => setIsOpen(!isOpen)}>
+              {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Menu */}
