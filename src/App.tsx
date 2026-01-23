@@ -23,6 +23,8 @@ import Contact from "./pages/Contact";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import MyMaterials from "./pages/lecturer/MyMaterials";
 import Dashboard from "./pages/Dashboard";
+import Bookmarks from "./pages/Bookmarks";
+import ViewingHistory from "./pages/ViewingHistory";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -55,6 +57,22 @@ const App = () => (
                   element={
                     <ProtectedRoute>
                       <Dashboard />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/bookmarks" 
+                  element={
+                    <ProtectedRoute>
+                      <Bookmarks />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/history" 
+                  element={
+                    <ProtectedRoute>
+                      <ViewingHistory />
                     </ProtectedRoute>
                   } 
                 />

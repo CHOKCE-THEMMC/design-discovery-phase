@@ -52,6 +52,19 @@ const MaterialsFilter = ({
   sortBy,
   onSortChange,
 }: MaterialsFilterProps) => {
+  const handleClearFilters = () => {
+    onSearchChange("");
+    onDepartmentChange("All Departments");
+    onYearChange("All Years");
+    onSortChange("newest");
+  };
+
+  const hasActiveFilters = 
+    searchQuery || 
+    selectedDepartment !== "All Departments" || 
+    selectedYear !== "All Years" || 
+    sortBy !== "newest";
+
   return (
     <div className="space-y-4">
       {/* Search Bar */}
@@ -65,43 +78,45 @@ const MaterialsFilter = ({
         />
       </div>
 
-      {/* Filters Row */}
-      <div className="flex flex-wrap gap-3 items-center">
+      {/* Filters Row - Mobile optimized */}
+      <div className="flex flex-col sm:flex-row gap-3">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Filter className="h-4 w-4" />
-          <span>Filters:</span>
+          <span className="hidden sm:inline">Filters:</span>
         </div>
 
-        <Select value={selectedDepartment} onValueChange={onDepartmentChange}>
-          <SelectTrigger className="w-[180px] bg-card">
-            <SelectValue placeholder="Department" />
-          </SelectTrigger>
-          <SelectContent className="bg-popover border-border z-50">
-            {departments.map((dept) => (
-              <SelectItem key={dept} value={dept}>
-                {dept}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="grid grid-cols-2 sm:flex gap-2 sm:gap-3 flex-1">
+          <Select value={selectedDepartment} onValueChange={onDepartmentChange}>
+            <SelectTrigger className="w-full sm:w-[160px] lg:w-[180px] bg-card text-sm">
+              <SelectValue placeholder="Department" />
+            </SelectTrigger>
+            <SelectContent className="bg-popover border-border z-50">
+              {departments.map((dept) => (
+                <SelectItem key={dept} value={dept}>
+                  {dept}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-        <Select value={selectedYear} onValueChange={onYearChange}>
-          <SelectTrigger className="w-[140px] bg-card">
-            <SelectValue placeholder="Year" />
-          </SelectTrigger>
-          <SelectContent className="bg-popover border-border z-50">
-            {years.map((year) => (
-              <SelectItem key={year} value={year}>
-                {year}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          <Select value={selectedYear} onValueChange={onYearChange}>
+            <SelectTrigger className="w-full sm:w-[120px] lg:w-[140px] bg-card text-sm">
+              <SelectValue placeholder="Year" />
+            </SelectTrigger>
+            <SelectContent className="bg-popover border-border z-50">
+              {years.map((year) => (
+                <SelectItem key={year} value={year}>
+                  {year}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
-        <div className="flex items-center gap-2 ml-auto">
-          <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
+        <div className="flex items-center gap-2 sm:ml-auto">
+          <SlidersHorizontal className="h-4 w-4 text-muted-foreground hidden sm:block" />
           <Select value={sortBy} onValueChange={onSortChange}>
-            <SelectTrigger className="w-[150px] bg-card">
+            <SelectTrigger className="w-full sm:w-[130px] lg:w-[150px] bg-card text-sm">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent className="bg-popover border-border z-50">
@@ -112,11 +127,18 @@ const MaterialsFilter = ({
               ))}
             </SelectContent>
           </Select>
-        </div>
 
-        <Button variant="outline" size="sm" className="text-xs">
-          Clear Filters
-        </Button>
+          {hasActiveFilters && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="text-xs whitespace-nowrap"
+              onClick={handleClearFilters}
+            >
+              Clear
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );

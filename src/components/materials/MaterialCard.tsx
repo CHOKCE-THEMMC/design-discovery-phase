@@ -1,11 +1,14 @@
 import { useState } from "react";
-import { Book, FileText, ScrollText, GraduationCap, Download, Eye, Calendar, User, Video, Link as LinkIcon, Lock } from "lucide-react";
+import { Book, FileText, ScrollText, GraduationCap, Download, Eye, Calendar, User, Video, Link as LinkIcon, Lock, Bookmark, BookmarkCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
+import { useBookmarks } from "@/hooks/use-bookmarks";
+import { useViewingHistory } from "@/hooks/use-viewing-history";
 import MaterialPreviewModal from "./MaterialPreviewModal";
+import { cn } from "@/lib/utils";
 
 export interface Material {
   id: string;
@@ -27,6 +30,7 @@ export interface Material {
 
 interface MaterialCardProps {
   material: Material;
+  showBookmark?: boolean;
 }
 
 const typeIcons = {
@@ -43,17 +47,41 @@ const typeColors = {
   "tutorial": "bg-library-gold",
 };
 
-const MaterialCard = ({ material }: MaterialCardProps) => {
+const MaterialCard = ({ material, showBookmark = true }: MaterialCardProps) => {
   const Icon = typeIcons[material.type];
   const colorClass = typeColors[material.type];
   const { user } = useAuth();
+  const { isBookmarked, toggleBookmark } = useBookmarks();
+  const { recordView } = useViewingHistory();
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
 
   const isVideo = material.isVideo || material.contentType === 'video_file' || material.contentType === 'video_link';
   const isVideoLink = material.contentType === 'video_link';
+  const bookmarked = isBookmarked(material.id);
 
   const handlePreview = () => {
     setIsPreviewOpen(true);
+    // Record view when preview is opened
+    if (user) {
+      recordView(material.id);
+    }
+  };
+
+  const handleBookmarkClick = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!user) {
+      toast.error("Please sign in to bookmark materials", {
+        action: {
+          label: "Sign In",
+          onClick: () => window.location.href = "/login",
+        },
+      });
+      return;
+    }
+    setIsBookmarkLoading(true);
+    await toggleBookmark(material.id);
+    setIsBookmarkLoading(false);
   };
 
   const handleDownload = async () => {
@@ -122,6 +150,26 @@ const MaterialCard = ({ material }: MaterialCardProps) => {
             <Badge variant="secondary" className="bg-red-500 text-white text-xs">
               {isVideoLink ? 'Video Link' : 'Video'}
             </Badge>
+          )}
+        </div>
+        <div className="absolute top-3 right-3 flex gap-2">
+          {showBookmark && (
+            <button
+              onClick={handleBookmarkClick}
+              disabled={isBookmarkLoading}
+              className={cn(
+                "p-1.5 rounded-full transition-colors",
+                bookmarked 
+                  ? "bg-primary text-primary-foreground" 
+                  : "bg-white/90 text-foreground/70 hover:text-primary"
+              )}
+            >
+              {bookmarked ? (
+                <BookmarkCheck className="h-4 w-4" />
+              ) : (
+                <Bookmark className="h-4 w-4" />
+              )}
+            </button>
           )}
         </div>
         {!user && (

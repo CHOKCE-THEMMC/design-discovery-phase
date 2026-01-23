@@ -14,7 +14,7 @@ const CategoriesSection = () => {
       count: stats ? formatStatCount(stats.books) : "0+",
       color: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
       borderColor: "border-blue-500/30",
-      href: "/materials?type=books",
+      href: "/books",
     },
     {
       id: "lecture-notes",
@@ -24,7 +24,7 @@ const CategoriesSection = () => {
       count: stats ? formatStatCount(stats.lectureNotes) : "0+",
       color: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
       borderColor: "border-emerald-500/30",
-      href: "/materials?type=lecture-notes",
+      href: "/lecture-notes",
     },
     {
       id: "past-papers",
@@ -34,7 +34,7 @@ const CategoriesSection = () => {
       count: stats ? formatStatCount(stats.pastPapers) : "0+",
       color: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
       borderColor: "border-amber-500/30",
-      href: "/materials?type=past-papers",
+      href: "/past-papers",
     },
     {
       id: "tutorials",

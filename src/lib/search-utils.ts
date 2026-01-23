@@ -57,55 +57,123 @@ function tokenize(text: string): string[] {
 }
 
 /**
- * Check if query matches using various strategies
+ * Check if query matches using various strategies with improved specificity
  */
 function matchScore(query: string, text: string): number {
-  const queryLower = query.toLowerCase();
-  const textLower = text.toLowerCase();
+  const queryLower = query.toLowerCase().trim();
+  const textLower = text.toLowerCase().trim();
+  
+  if (!queryLower || !textLower) return 0;
   
   // Exact match - highest score
   if (textLower === queryLower) return 1.0;
   
+  // Check for exact phrase match at word boundaries
+  const phraseRegex = new RegExp(`\\b${escapeRegex(queryLower)}\\b`, 'i');
+  if (phraseRegex.test(textLower)) return 0.95;
+  
   // Contains exact phrase - very high score
-  if (textLower.includes(queryLower)) return 0.9;
+  if (textLower.includes(queryLower)) return 0.85;
   
   // Word boundary match - high score
   const queryWords = tokenize(query);
   const textWords = tokenize(text);
   
-  let wordMatchCount = 0;
-  let fuzzyMatchCount = 0;
-  
-  for (const queryWord of queryWords) {
-    // Exact word match
-    if (textWords.includes(queryWord)) {
-      wordMatchCount++;
-      continue;
-    }
-    
-    // Check for fuzzy matches
-    for (const textWord of textWords) {
-      // Prefix match
-      if (textWord.startsWith(queryWord) || queryWord.startsWith(textWord)) {
-        fuzzyMatchCount += 0.7;
-        break;
-      }
-      
-      // Similarity match (for typos)
-      const similarity = stringSimilarity(queryWord, textWord);
-      if (similarity > 0.75) {
-        fuzzyMatchCount += similarity * 0.5;
-        break;
-      }
-    }
-  }
-  
   if (queryWords.length === 0) return 0;
   
-  const exactScore = wordMatchCount / queryWords.length;
-  const fuzzyScore = fuzzyMatchCount / queryWords.length;
+  let exactWordMatches = 0;
+  let prefixMatches = 0;
+  let fuzzyMatches = 0;
+  let consecutiveBonus = 0;
   
-  return exactScore * 0.6 + fuzzyScore * 0.3;
+  // Track consecutive word matches for phrase-like queries
+  let lastMatchIndex = -2;
+  
+  for (let i = 0; i < queryWords.length; i++) {
+    const queryWord = queryWords[i];
+    let bestMatchScore = 0;
+    let matchIndex = -1;
+    
+    for (let j = 0; j < textWords.length; j++) {
+      const textWord = textWords[j];
+      
+      // Exact word match
+      if (textWord === queryWord) {
+        if (bestMatchScore < 1) {
+          bestMatchScore = 1;
+          matchIndex = j;
+        }
+        continue;
+      }
+      
+      // Strong prefix match (query word starts the text word)
+      if (textWord.startsWith(queryWord) && queryWord.length >= 3) {
+        const prefixScore = 0.85 + (queryWord.length / textWord.length) * 0.1;
+        if (prefixScore > bestMatchScore) {
+          bestMatchScore = prefixScore;
+          matchIndex = j;
+        }
+        continue;
+      }
+      
+      // Reverse prefix match (text word starts the query word)
+      if (queryWord.startsWith(textWord) && textWord.length >= 3) {
+        const prefixScore = 0.7 + (textWord.length / queryWord.length) * 0.1;
+        if (prefixScore > bestMatchScore) {
+          bestMatchScore = prefixScore;
+          matchIndex = j;
+        }
+        continue;
+      }
+      
+      // Similarity match (for typos) - only for longer words
+      if (queryWord.length >= 4 && textWord.length >= 4) {
+        const similarity = stringSimilarity(queryWord, textWord);
+        if (similarity > 0.8) {
+          const fuzzyScore = similarity * 0.6;
+          if (fuzzyScore > bestMatchScore) {
+            bestMatchScore = fuzzyScore;
+            matchIndex = j;
+          }
+        }
+      }
+    }
+    
+    if (bestMatchScore >= 1) {
+      exactWordMatches++;
+    } else if (bestMatchScore >= 0.7) {
+      prefixMatches += bestMatchScore;
+    } else if (bestMatchScore > 0) {
+      fuzzyMatches += bestMatchScore;
+    }
+    
+    // Bonus for consecutive matches (phrase-like matching)
+    if (matchIndex !== -1 && matchIndex === lastMatchIndex + 1) {
+      consecutiveBonus += 0.1;
+    }
+    lastMatchIndex = matchIndex;
+  }
+  
+  // Calculate weighted score
+  const exactScore = (exactWordMatches / queryWords.length) * 0.7;
+  const prefixScore = (prefixMatches / queryWords.length) * 0.5;
+  const fuzzyScore = (fuzzyMatches / queryWords.length) * 0.3;
+  
+  // Combine scores with consecutive bonus
+  const baseScore = exactScore + prefixScore + fuzzyScore + consecutiveBonus;
+  
+  // Apply length penalty for very short queries matching long text
+  const lengthRatio = queryLower.length / textLower.length;
+  const lengthPenalty = lengthRatio < 0.1 ? 0.7 : lengthRatio < 0.2 ? 0.85 : 1;
+  
+  return Math.min(baseScore * lengthPenalty, 1.0);
+}
+
+/**
+ * Escape special regex characters
+ */
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 export interface SearchResult<T> {
