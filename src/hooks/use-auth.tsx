@@ -12,6 +12,8 @@ interface UserProfile {
   full_name: string | null;
   email: string | null;
   avatar_url: string | null;
+  approval_status: string;
+  enrolled_program: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -22,12 +24,14 @@ interface AuthContextType {
   loading: boolean;
   userRole: AppRole | null;
   userProfile: UserProfile | null;
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, fullName: string, enrolledProgram?: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   isAdmin: boolean;
   isModerator: boolean;
   isLecturer: boolean;
+  isApproved: boolean;
+  isPending: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -115,7 +119,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, fullName: string) => {
+  const signUp = async (email: string, password: string, fullName: string, enrolledProgram?: string) => {
     const redirectUrl = `${window.location.origin}/`;
     
     const { data, error } = await supabase.auth.signUp({
@@ -125,12 +129,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         emailRedirectTo: redirectUrl,
         data: {
           full_name: fullName,
+          enrolled_program: enrolledProgram,
         },
       },
     });
     
     if (error) {
       return { error };
+    }
+    
+    // Update the profile with enrolled_program if provided
+    if (data.user && enrolledProgram) {
+      await supabase
+        .from('profiles')
+        .update({ enrolled_program: enrolledProgram })
+        .eq('user_id', data.user.id);
     }
     
     // Create a welcome notification for the new user
@@ -140,9 +153,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .from('notifications')
           .insert({
             user_id: data.user.id,
-            title: '🎉 Welcome to DTI Library!',
-            message: `Hello ${fullName}! Your account has been created successfully. Start exploring thousands of academic resources now!`,
-            type: 'welcome'
+            title: '📋 Account Pending Approval',
+            message: `Hello ${fullName}! Your account has been created and is pending approval by an administrator. You will be notified once your account is approved.`,
+            type: 'pending_approval'
           });
       } catch (notifError) {
         console.log('Could not create welcome notification:', notifError);
@@ -171,6 +184,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isAdmin = userRole === 'admin';
   const isModerator = userRole === 'moderator' || userRole === 'admin';
   const isLecturer = userRole === 'moderator' || userRole === 'admin';
+  const isApproved = userProfile?.approval_status === 'approved' || isAdmin;
+  const isPending = userProfile?.approval_status === 'pending';
 
   return (
     <AuthContext.Provider value={{
@@ -185,6 +200,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAdmin,
       isModerator,
       isLecturer,
+      isApproved,
+      isPending,
     }}>
       {children}
     </AuthContext.Provider>

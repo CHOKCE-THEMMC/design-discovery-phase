@@ -48,7 +48,7 @@ const Register = () => {
 
     setLoading(true);
 
-    const { error } = await signUp(formData.email, formData.password, formData.name);
+    const { error } = await signUp(formData.email, formData.password, formData.name, formData.department);
 
     if (error) {
       if (error.message.includes('already registered')) {
@@ -60,8 +60,8 @@ const Register = () => {
       return;
     }
 
-    toast.success('Account created successfully! Welcome to DTI Library.');
-    navigate('/');
+    toast.success('Account created! Please wait for admin approval to access all features.');
+    navigate('/login');
   };
 
   if (authLoading) {

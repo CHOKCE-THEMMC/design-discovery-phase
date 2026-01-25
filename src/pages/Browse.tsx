@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Library, Book, FileText, ScrollText, GraduationCap } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -27,13 +28,27 @@ const materialTypes = [
 ];
 
 const Browse = () => {
+  const [searchParams] = useSearchParams();
+  const programFromUrl = searchParams.get('program');
+  const yearFromUrl = searchParams.get('year');
+
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedDepartment, setSelectedDepartment] = useState("All Programs");
-  const [selectedYear, setSelectedYear] = useState("All Years");
+  const [selectedDepartment, setSelectedDepartment] = useState(programFromUrl || "All Programs");
+  const [selectedYear, setSelectedYear] = useState(yearFromUrl ? `Year ${yearFromUrl}` : "All Years");
   const [selectedType, setSelectedType] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9;
+
+  // Update filters when URL params change
+  useEffect(() => {
+    if (programFromUrl) {
+      setSelectedDepartment(programFromUrl);
+    }
+    if (yearFromUrl) {
+      setSelectedYear(`Year ${yearFromUrl}`);
+    }
+  }, [programFromUrl, yearFromUrl]);
 
   const { data: materials = [], isLoading } = useAllMaterials();
 
