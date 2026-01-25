@@ -100,6 +100,7 @@ export type Database = {
           uploaded_by: string | null
           video_url: string | null
           year: number | null
+          year_level: number | null
         }
         Insert: {
           approved_at?: string | null
@@ -124,6 +125,7 @@ export type Database = {
           uploaded_by?: string | null
           video_url?: string | null
           year?: number | null
+          year_level?: number | null
         }
         Update: {
           approved_at?: string | null
@@ -148,6 +150,7 @@ export type Database = {
           uploaded_by?: string | null
           video_url?: string | null
           year?: number | null
+          year_level?: number | null
         }
         Relationships: []
       }
@@ -183,31 +186,70 @@ export type Database = {
       }
       profiles: {
         Row: {
+          approval_status: string
           avatar_url: string | null
           created_at: string
           email: string | null
+          enrolled_program: string | null
           full_name: string | null
           id: string
           updated_at: string
           user_id: string
         }
         Insert: {
+          approval_status?: string
           avatar_url?: string | null
           created_at?: string
           email?: string | null
+          enrolled_program?: string | null
           full_name?: string | null
           id?: string
           updated_at?: string
           user_id: string
         }
         Update: {
+          approval_status?: string
           avatar_url?: string | null
           created_at?: string
           email?: string | null
+          enrolled_program?: string | null
           full_name?: string | null
           id?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      programs: {
+        Row: {
+          created_at: string
+          description: string | null
+          duration: string
+          id: string
+          is_active: boolean
+          name: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duration: string
+          id?: string
+          is_active?: boolean
+          name: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duration?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          type?: string
+          updated_at?: string
         }
         Relationships: []
       }

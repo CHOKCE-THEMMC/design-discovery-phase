@@ -25,6 +25,7 @@ import MyMaterials from "./pages/lecturer/MyMaterials";
 import Dashboard from "./pages/Dashboard";
 import Bookmarks from "./pages/Bookmarks";
 import ViewingHistory from "./pages/ViewingHistory";
+import Programs from "./pages/Programs";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -48,11 +49,12 @@ const App = () => (
                 <Route path="/past-papers" element={<PastPapers />} />
                 <Route path="/tutorials" element={<Tutorials />} />
                 <Route path="/browse" element={<Browse />} />
+                <Route path="/programs" element={<Programs />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/contact" element={<Contact />} />
-                <Route 
+                <Route
                   path="/dashboard" 
                   element={
                     <ProtectedRoute>

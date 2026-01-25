@@ -8,13 +8,17 @@ import {
   BookOpen, 
   Users, 
   FileCheck, 
-  Upload
+  Upload,
+  GraduationCap,
+  UserCheck
 } from 'lucide-react';
 import { AdminOverview } from '@/components/admin/AdminOverview';
 import { MaterialsManagement } from '@/components/admin/MaterialsManagement';
 import { UsersManagement } from '@/components/admin/UsersManagement';
 import { PendingApprovals } from '@/components/admin/PendingApprovals';
 import { UploadMaterial } from '@/components/admin/UploadMaterial';
+import { ProgramsManagement } from '@/components/admin/ProgramsManagement';
+import { UserApprovals } from '@/components/admin/UserApprovals';
 
 export default function AdminDashboard() {
   const { user, isAdmin } = useAuth();
@@ -30,12 +34,12 @@ export default function AdminDashboard() {
             Admin Dashboard
           </h1>
           <p className="text-muted-foreground">
-            Manage materials, users, and system settings
+            Manage materials, users, programs, and system settings
           </p>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid bg-muted/50">
+          <TabsList className="flex flex-wrap w-full lg:w-auto lg:inline-flex bg-muted/50 h-auto gap-1 p-1">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <LayoutDashboard className="h-4 w-4" />
               <span className="hidden sm:inline">Overview</span>
@@ -48,9 +52,17 @@ export default function AdminDashboard() {
               <FileCheck className="h-4 w-4" />
               <span className="hidden sm:inline">Approvals</span>
             </TabsTrigger>
+            <TabsTrigger value="user-approvals" className="flex items-center gap-2">
+              <UserCheck className="h-4 w-4" />
+              <span className="hidden sm:inline">User Approvals</span>
+            </TabsTrigger>
             <TabsTrigger value="users" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
               <span className="hidden sm:inline">Users</span>
+            </TabsTrigger>
+            <TabsTrigger value="programs" className="flex items-center gap-2">
+              <GraduationCap className="h-4 w-4" />
+              <span className="hidden sm:inline">Programs</span>
             </TabsTrigger>
             <TabsTrigger value="upload" className="flex items-center gap-2">
               <Upload className="h-4 w-4" />
@@ -70,8 +82,16 @@ export default function AdminDashboard() {
             <PendingApprovals />
           </TabsContent>
 
+          <TabsContent value="user-approvals">
+            <UserApprovals />
+          </TabsContent>
+
           <TabsContent value="users">
             <UsersManagement />
+          </TabsContent>
+
+          <TabsContent value="programs">
+            <ProgramsManagement />
           </TabsContent>
 
           <TabsContent value="upload">

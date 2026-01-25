@@ -114,6 +114,20 @@ const Navbar = () => {
               )}
             </Link>
             <Link 
+              to="/programs" 
+              className={cn(
+                "text-sm font-medium transition-colors relative py-1",
+                isActiveLink("/programs") 
+                  ? "text-primary" 
+                  : "text-foreground/80 hover:text-foreground"
+              )}
+            >
+              Programs
+              {isActiveLink("/programs") && (
+                <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full" />
+              )}
+            </Link>
+            <Link 
               to="/about" 
               className={cn(
                 "text-sm font-medium transition-colors relative py-1",

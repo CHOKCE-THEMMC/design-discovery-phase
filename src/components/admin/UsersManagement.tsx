@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Table, 
   TableBody, 
@@ -13,13 +14,12 @@ import {
   TableRow 
 } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Shield, User, Users } from 'lucide-react';
+import { Search, Shield, User, Users, Crown, CheckCircle2, XCircle, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/use-auth';
 import type { Database } from '@/integrations/supabase/types';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
-type UserRole = Database['public']['Tables']['user_roles']['Row'];
 
 interface UserWithRole extends Profile {
   role?: string;
@@ -30,6 +30,7 @@ export function UsersManagement() {
   const [users, setUsers] = useState<UserWithRole[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState('all');
 
   useEffect(() => {
     fetchUsers();
@@ -70,11 +71,13 @@ export function UsersManagement() {
     }
   };
 
-  const handleRoleChange = async (userId: string, newRole: string) => {
+  const handleRoleChange = async (userId: string, newRole: string, userName: string) => {
     if (!isAdmin) {
       toast.error('Only admins can change user roles');
       return;
     }
+
+    const oldRole = users.find(u => u.user_id === userId)?.role;
 
     try {
       // First, check if role exists
@@ -104,6 +107,54 @@ export function UsersManagement() {
         if (error) throw error;
       }
 
+      // If user is being promoted to admin, notify both the new admin and existing admins
+      if (newRole === 'admin' && oldRole !== 'admin') {
+        // Notify the new admin
+        await supabase
+          .from('notifications')
+          .insert({
+            user_id: userId,
+            title: '👑 You are now an Administrator',
+            message: 'You have been granted administrator privileges. You now have access to the admin dashboard and can manage users, materials, and system settings.',
+            type: 'role_change'
+          });
+
+        // Notify the current admin who made the change
+        if (currentUser?.id) {
+          await supabase
+            .from('notifications')
+            .insert({
+              user_id: currentUser.id,
+              title: '🔔 New Administrator Added',
+              message: `${userName} has been granted administrator privileges.`,
+              type: 'admin_notification'
+            });
+        }
+
+        // Get all other admins and notify them
+        const { data: adminRoles } = await supabase
+          .from('user_roles')
+          .select('user_id')
+          .eq('role', 'admin');
+
+        if (adminRoles) {
+          const otherAdmins = adminRoles.filter(
+            a => a.user_id !== userId && a.user_id !== currentUser?.id
+          );
+
+          for (const admin of otherAdmins) {
+            await supabase
+              .from('notifications')
+              .insert({
+                user_id: admin.user_id,
+                title: '🔔 New Administrator Added',
+                message: `${userName} has been granted administrator privileges.`,
+                type: 'admin_notification'
+              });
+          }
+        }
+      }
+
       toast.success('Role updated successfully');
       fetchUsers();
     } catch (error) {
@@ -115,17 +166,116 @@ export function UsersManagement() {
   const getRoleBadge = (role: string) => {
     switch (role) {
       case 'admin':
-        return <Badge className="bg-primary/20 text-primary">Admin</Badge>;
+        return <Badge className="bg-primary/20 text-primary"><Crown className="h-3 w-3 mr-1" />Admin</Badge>;
       case 'moderator':
-        return <Badge className="bg-library-burgundy/20 text-library-burgundy">Moderator</Badge>;
+        return <Badge className="bg-library-burgundy/20 text-library-burgundy"><Shield className="h-3 w-3 mr-1" />Moderator</Badge>;
       default:
-        return <Badge variant="secondary">User</Badge>;
+        return <Badge variant="secondary"><User className="h-3 w-3 mr-1" />User</Badge>;
+    }
+  };
+
+  const getApprovalBadge = (status: string) => {
+    switch (status) {
+      case 'approved':
+        return <Badge className="bg-green-500/20 text-green-600"><CheckCircle2 className="h-3 w-3 mr-1" />Approved</Badge>;
+      case 'rejected':
+        return <Badge className="bg-red-500/20 text-red-600"><XCircle className="h-3 w-3 mr-1" />Rejected</Badge>;
+      default:
+        return <Badge className="bg-yellow-500/20 text-yellow-600"><Clock className="h-3 w-3 mr-1" />Pending</Badge>;
     }
   };
 
   const filteredUsers = users.filter(u =>
     u.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     u.email?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const adminUsers = filteredUsers.filter(u => u.role === 'admin');
+  const moderatorUsers = filteredUsers.filter(u => u.role === 'moderator');
+  const regularUsers = filteredUsers.filter(u => u.role === 'user');
+
+  const UserTable = ({ userList, title, icon: Icon }: { userList: UserWithRole[], title: string, icon: any }) => (
+    <div className="space-y-3">
+      <h3 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
+        <Icon className="h-4 w-4" />
+        {title} ({userList.length})
+      </h3>
+      <div className="rounded-lg border border-border overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-muted/50">
+              <TableHead>User</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Role</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Joined</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-8">
+                  Loading...
+                </TableCell>
+              </TableRow>
+            ) : userList.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                  No users found
+                </TableCell>
+              </TableRow>
+            ) : (
+              userList.map((user) => (
+                <TableRow key={user.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                        {user.avatar_url ? (
+                          <img
+                            src={user.avatar_url}
+                            alt={user.full_name || ''}
+                            className="h-10 w-10 rounded-full object-cover"
+                          />
+                        ) : (
+                          <User className="h-5 w-5 text-primary" />
+                        )}
+                      </div>
+                      <span className="font-medium">{user.full_name || 'Unknown'}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {user.email || 'N/A'}
+                  </TableCell>
+                  <TableCell>{getRoleBadge(user.role || 'user')}</TableCell>
+                  <TableCell>{getApprovalBadge(user.approval_status || 'pending')}</TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {new Date(user.created_at).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {isAdmin && user.user_id !== currentUser?.id && (
+                      <Select
+                        value={user.role || 'user'}
+                        onValueChange={(value) => handleRoleChange(user.user_id, value, user.full_name || 'User')}
+                      >
+                        <SelectTrigger className="w-32">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="user">User</SelectItem>
+                          <SelectItem value="moderator">Moderator</SelectItem>
+                          <SelectItem value="admin">Admin</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
   );
 
   return (
@@ -136,7 +286,10 @@ export function UsersManagement() {
             <Users className="h-5 w-5" />
             Users Management
           </CardTitle>
-          <Badge variant="outline">{users.length} Total Users</Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline">{users.length} Total Users</Badge>
+            <Badge className="bg-primary/20 text-primary">{adminUsers.length} Admins</Badge>
+          </div>
         </div>
         <div className="relative mt-4">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -149,79 +302,48 @@ export function UsersManagement() {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="rounded-lg border border-border overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-muted/50">
-                <TableHead>User</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Joined</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loading ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8">
-                    Loading...
-                  </TableCell>
-                </TableRow>
-              ) : filteredUsers.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                    No users found
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredUsers.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                          {user.avatar_url ? (
-                            <img
-                              src={user.avatar_url}
-                              alt={user.full_name || ''}
-                              className="h-10 w-10 rounded-full object-cover"
-                            />
-                          ) : (
-                            <User className="h-5 w-5 text-primary" />
-                          )}
-                        </div>
-                        <span className="font-medium">{user.full_name || 'Unknown'}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {user.email || 'N/A'}
-                    </TableCell>
-                    <TableCell>{getRoleBadge(user.role || 'user')}</TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {new Date(user.created_at).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {isAdmin && user.user_id !== currentUser?.id && (
-                        <Select
-                          value={user.role || 'user'}
-                          onValueChange={(value) => handleRoleChange(user.user_id, value)}
-                        >
-                          <SelectTrigger className="w-32">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="user">User</SelectItem>
-                            <SelectItem value="moderator">Moderator</SelectItem>
-                            <SelectItem value="admin">Admin</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="all" className="flex items-center gap-1">
+              <Users className="h-4 w-4" />
+              All
+            </TabsTrigger>
+            <TabsTrigger value="admins" className="flex items-center gap-1">
+              <Crown className="h-4 w-4" />
+              Admins
+            </TabsTrigger>
+            <TabsTrigger value="moderators" className="flex items-center gap-1">
+              <Shield className="h-4 w-4" />
+              Moderators
+            </TabsTrigger>
+            <TabsTrigger value="users" className="flex items-center gap-1">
+              <User className="h-4 w-4" />
+              Users
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="all" className="space-y-6">
+            {adminUsers.length > 0 && (
+              <UserTable userList={adminUsers} title="Administrators" icon={Crown} />
+            )}
+            {moderatorUsers.length > 0 && (
+              <UserTable userList={moderatorUsers} title="Moderators" icon={Shield} />
+            )}
+            <UserTable userList={regularUsers} title="Regular Users" icon={User} />
+          </TabsContent>
+
+          <TabsContent value="admins">
+            <UserTable userList={adminUsers} title="Administrators" icon={Crown} />
+          </TabsContent>
+
+          <TabsContent value="moderators">
+            <UserTable userList={moderatorUsers} title="Moderators" icon={Shield} />
+          </TabsContent>
+
+          <TabsContent value="users">
+            <UserTable userList={regularUsers} title="Regular Users" icon={User} />
+          </TabsContent>
+        </Tabs>
       </CardContent>
     </Card>
   );
