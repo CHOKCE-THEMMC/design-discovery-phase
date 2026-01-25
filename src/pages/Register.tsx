@@ -4,11 +4,12 @@ import { Mail, Lock, Eye, EyeOff, User, GraduationCap, ArrowRight, Loader2 } fro
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup, SelectLabel } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import Logo from "@/components/layout/Logo";
+import { GROUPED_PROGRAMS } from "@/lib/programs";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -30,15 +31,7 @@ const Register = () => {
     }
   }, [user, authLoading, navigate]);
 
-  const departments = [
-    "Computer Science",
-    "Engineering",
-    "Business Administration",
-    "Mathematics",
-    "Natural Sciences",
-    "Social Sciences",
-    "Arts & Humanities",
-  ];
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -202,11 +195,16 @@ const Register = () => {
                   <SelectTrigger>
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
-                  <SelectContent className="bg-popover border-border z-50">
-                    {departments.map((dept) => (
-                      <SelectItem key={dept} value={dept.toLowerCase().replace(/\s+/g, '-')}>
-                        {dept}
-                      </SelectItem>
+                  <SelectContent className="bg-popover border-border z-50 max-h-[300px]">
+                    {Object.entries(GROUPED_PROGRAMS).map(([group, programs]) => (
+                      <SelectGroup key={group}>
+                        <SelectLabel className="text-xs font-semibold text-muted-foreground">{group}</SelectLabel>
+                        {programs.map((program) => (
+                          <SelectItem key={program} value={program}>
+                            {program}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
                     ))}
                   </SelectContent>
                 </Select>

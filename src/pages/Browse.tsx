@@ -28,7 +28,7 @@ const materialTypes = [
 
 const Browse = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedDepartment, setSelectedDepartment] = useState("All Departments");
+  const [selectedDepartment, setSelectedDepartment] = useState("All Programs");
   const [selectedYear, setSelectedYear] = useState("All Years");
   const [selectedType, setSelectedType] = useState("all");
   const [sortBy, setSortBy] = useState("newest");

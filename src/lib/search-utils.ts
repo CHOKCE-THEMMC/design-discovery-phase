@@ -259,7 +259,7 @@ export function filterAndSortMaterials(
   let result = searchResults
     .filter(({ item }) => {
       const matchesDepartment =
-        department === 'All Departments' || item.department === department;
+        department === 'All Departments' || department === 'All Programs' || item.department === department;
       const matchesYear =
         year === 'All Years' || item.year.toString() === year;
       const matchesType = !type || type === 'all' || item.type === type;

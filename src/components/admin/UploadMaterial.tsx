@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup, SelectLabel } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Upload, FileText, Loader2, CheckCircle, Video, Link } from 'lucide-react';
 import { toast } from 'sonner';
@@ -14,15 +14,7 @@ import type { Database } from '@/integrations/supabase/types';
 
 type MaterialType = Database['public']['Enums']['material_type'];
 
-const departments = [
-  'Computer Science',
-  'Engineering',
-  'Business Administration',
-  'Mathematics',
-  'Natural Sciences',
-  'Social Sciences',
-  'Arts & Humanities',
-];
+import { ALL_PROGRAMS, GROUPED_PROGRAMS } from '@/lib/programs';
 
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 10 }, (_, i) => currentYear - i);
@@ -324,19 +316,24 @@ export function UploadMaterial() {
             </div>
 
             <div className="space-y-2">
-              <Label>Department *</Label>
+              <Label>Program *</Label>
               <Select
                 value={formData.department}
                 onValueChange={(value) => setFormData({ ...formData, department: value })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select department" />
+                  <SelectValue placeholder="Select program" />
                 </SelectTrigger>
-                <SelectContent>
-                  {departments.map((dept) => (
-                    <SelectItem key={dept} value={dept}>
-                      {dept}
-                    </SelectItem>
+                <SelectContent className="max-h-[300px]">
+                  {Object.entries(GROUPED_PROGRAMS).map(([group, programs]) => (
+                    <SelectGroup key={group}>
+                      <SelectLabel className="text-xs font-semibold text-muted-foreground">{group}</SelectLabel>
+                      {programs.map((program) => (
+                        <SelectItem key={program} value={program}>
+                          {program}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
                   ))}
                 </SelectContent>
               </Select>

@@ -7,7 +7,10 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectGroup,
+  SelectLabel,
 } from "@/components/ui/select";
+import { GROUPED_PROGRAMS } from "@/lib/programs";
 
 interface MaterialsFilterProps {
   searchQuery: string;
@@ -20,20 +23,8 @@ interface MaterialsFilterProps {
   onSortChange: (value: string) => void;
 }
 
-const departments = [
-  "All Departments",
-  "Computer Science",
-  "Engineering",
-  "Mathematics",
-  "Physics",
-  "Chemistry",
-  "Biology",
-  "Business",
-  "Economics",
-  "Literature",
-];
-
-const years = ["All Years", "2024", "2023", "2022", "2021", "2020"];
+const currentYear = new Date().getFullYear();
+const years = ["All Years", ...Array.from({ length: 6 }, (_, i) => (currentYear - i).toString())];
 
 const sortOptions = [
   { value: "newest", label: "Newest First" },
@@ -54,14 +45,14 @@ const MaterialsFilter = ({
 }: MaterialsFilterProps) => {
   const handleClearFilters = () => {
     onSearchChange("");
-    onDepartmentChange("All Departments");
+    onDepartmentChange("All Programs");
     onYearChange("All Years");
     onSortChange("newest");
   };
 
   const hasActiveFilters = 
     searchQuery || 
-    selectedDepartment !== "All Departments" || 
+    selectedDepartment !== "All Programs" || 
     selectedYear !== "All Years" || 
     sortBy !== "newest";
 
@@ -87,14 +78,20 @@ const MaterialsFilter = ({
 
         <div className="grid grid-cols-2 sm:flex gap-2 sm:gap-3 flex-1">
           <Select value={selectedDepartment} onValueChange={onDepartmentChange}>
-            <SelectTrigger className="w-full sm:w-[160px] lg:w-[180px] bg-card text-sm">
-              <SelectValue placeholder="Department" />
+            <SelectTrigger className="w-full sm:w-[160px] lg:w-[200px] bg-card text-sm">
+              <SelectValue placeholder="Program" />
             </SelectTrigger>
-            <SelectContent className="bg-popover border-border z-50">
-              {departments.map((dept) => (
-                <SelectItem key={dept} value={dept}>
-                  {dept}
-                </SelectItem>
+            <SelectContent className="bg-popover border-border z-50 max-h-[300px]">
+              <SelectItem value="All Programs">All Programs</SelectItem>
+              {Object.entries(GROUPED_PROGRAMS).map(([group, programs]) => (
+                <SelectGroup key={group}>
+                  <SelectLabel className="text-xs font-semibold text-muted-foreground">{group}</SelectLabel>
+                  {programs.map((program) => (
+                    <SelectItem key={program} value={program}>
+                      {program}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
               ))}
             </SelectContent>
           </Select>

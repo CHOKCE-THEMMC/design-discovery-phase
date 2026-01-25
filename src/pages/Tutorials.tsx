@@ -19,7 +19,7 @@ import {
 
 const Tutorials = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedDepartment, setSelectedDepartment] = useState("All Departments");
+  const [selectedDepartment, setSelectedDepartment] = useState("All Programs");
   const [selectedYear, setSelectedYear] = useState("All Years");
   const [sortBy, setSortBy] = useState("newest");
   const [currentPage, setCurrentPage] = useState(1);
