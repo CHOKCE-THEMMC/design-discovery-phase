@@ -13,6 +13,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectGroup,
+  SelectLabel,
 } from '@/components/ui/select';
 import {
   Dialog,
@@ -50,17 +52,7 @@ type Material = {
   created_at: string;
 };
 
-const departments = [
-  'Computer Science',
-  'Engineering',
-  'Business',
-  'Mathematics',
-  'Physics',
-  'Chemistry',
-  'Biology',
-  'Arts',
-  'Languages',
-];
+import { ALL_PROGRAMS, GROUPED_PROGRAMS } from '@/lib/programs';
 
 const materialTypes = [
   { value: 'book', label: 'Book' },
@@ -367,14 +359,21 @@ export default function MyMaterials() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label>Department *</Label>
+                    <Label>Program *</Label>
                     <Select value={formData.department} onValueChange={(value) => setFormData({ ...formData, department: value })}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select department" />
+                        <SelectValue placeholder="Select program" />
                       </SelectTrigger>
-                      <SelectContent>
-                        {departments.map(d => (
-                          <SelectItem key={d} value={d}>{d}</SelectItem>
+                      <SelectContent className="max-h-[300px]">
+                        {Object.entries(GROUPED_PROGRAMS).map(([group, programs]) => (
+                          <SelectGroup key={group}>
+                            <SelectLabel className="text-xs font-semibold text-muted-foreground">{group}</SelectLabel>
+                            {programs.map((program) => (
+                              <SelectItem key={program} value={program}>
+                                {program}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
                         ))}
                       </SelectContent>
                     </Select>
@@ -566,9 +565,16 @@ export default function MyMaterials() {
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
-                      {departments.map(d => (
-                        <SelectItem key={d} value={d}>{d}</SelectItem>
+                    <SelectContent className="max-h-[300px]">
+                      {Object.entries(GROUPED_PROGRAMS).map(([group, programs]) => (
+                        <SelectGroup key={group}>
+                          <SelectLabel className="text-xs font-semibold text-muted-foreground">{group}</SelectLabel>
+                          {programs.map((program) => (
+                            <SelectItem key={program} value={program}>
+                              {program}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
                       ))}
                     </SelectContent>
                   </Select>
