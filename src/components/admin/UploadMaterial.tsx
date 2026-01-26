@@ -30,10 +30,17 @@ export function UploadMaterial() {
     type: '' as MaterialType | '',
     department: '',
     year: '',
+    yearLevel: '',
     author: '',
     videoUrl: '',
   });
   const [file, setFile] = useState<File | null>(null);
+  
+  const yearLevels = [
+    { value: '1', label: 'Year 1' },
+    { value: '2', label: 'Year 2' },
+    { value: '3', label: 'Year 3' },
+  ];
 
   // Document file types (up to 1GB)
   const documentTypes = [
@@ -175,6 +182,7 @@ export function UploadMaterial() {
           type: formData.type as MaterialType,
           department: formData.department,
           year: formData.year ? parseInt(formData.year) : null,
+          year_level: formData.yearLevel ? parseInt(formData.yearLevel) : null,
           author: formData.author,
           file_url: fileUrl,
           file_name: fileName,
@@ -201,6 +209,7 @@ export function UploadMaterial() {
         type: '',
         department: '',
         year: '',
+        yearLevel: '',
         author: '',
         videoUrl: '',
       });
@@ -340,7 +349,7 @@ export function UploadMaterial() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label>Year</Label>
               <Select
@@ -354,6 +363,25 @@ export function UploadMaterial() {
                   {years.map((year) => (
                     <SelectItem key={year} value={year.toString()}>
                       {year}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Year Level *</Label>
+              <Select
+                value={formData.yearLevel}
+                onValueChange={(value) => setFormData({ ...formData, yearLevel: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select level" />
+                </SelectTrigger>
+                <SelectContent>
+                  {yearLevels.map((level) => (
+                    <SelectItem key={level.value} value={level.value}>
+                      {level.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -436,7 +464,7 @@ export function UploadMaterial() {
           <Button 
             type="submit" 
             className="w-full" 
-            disabled={loading || (uploadMode !== 'video_link' && !file) || !formData.title || !formData.type || !formData.department}
+            disabled={loading || (uploadMode !== 'video_link' && !file) || !formData.title || !formData.type || !formData.department || !formData.yearLevel}
           >
             {loading ? (
               <>
