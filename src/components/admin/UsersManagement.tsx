@@ -107,15 +107,20 @@ export function UsersManagement() {
         if (error) throw error;
       }
 
-      // If user is being promoted to admin, notify both the new admin and existing admins
-      if (newRole === 'admin' && oldRole !== 'admin') {
-        // Notify the new admin
+      // If user is being promoted to admin or moderator, notify both parties
+      if ((newRole === 'admin' || newRole === 'moderator') && oldRole !== newRole) {
+        const roleTitle = newRole === 'admin' ? 'Administrator' : 'Moderator';
+        const roleEmoji = newRole === 'admin' ? '👑' : '🛡️';
+        
+        // Notify the promoted user
         await supabase
           .from('notifications')
           .insert({
             user_id: userId,
-            title: '👑 You are now an Administrator',
-            message: 'You have been granted administrator privileges. You now have access to the admin dashboard and can manage users, materials, and system settings.',
+            title: `${roleEmoji} You are now a ${roleTitle}`,
+            message: newRole === 'admin' 
+              ? 'You have been granted administrator privileges. You now have access to the admin dashboard and can manage users, materials, and system settings.'
+              : 'You have been granted moderator privileges. You can now review and approve materials submitted by lecturers.',
             type: 'role_change'
           });
 
@@ -125,8 +130,8 @@ export function UsersManagement() {
             .from('notifications')
             .insert({
               user_id: currentUser.id,
-              title: '🔔 New Administrator Added',
-              message: `${userName} has been granted administrator privileges.`,
+              title: `🔔 New ${roleTitle} Added`,
+              message: `${userName} has been granted ${roleTitle.toLowerCase()} privileges.`,
               type: 'admin_notification'
             });
         }
@@ -147,8 +152,8 @@ export function UsersManagement() {
               .from('notifications')
               .insert({
                 user_id: admin.user_id,
-                title: '🔔 New Administrator Added',
-                message: `${userName} has been granted administrator privileges.`,
+                title: `🔔 New ${roleTitle} Added`,
+                message: `${userName} has been granted ${roleTitle.toLowerCase()} privileges.`,
                 type: 'admin_notification'
               });
           }

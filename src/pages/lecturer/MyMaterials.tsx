@@ -45,6 +45,7 @@ type Material = {
   type: 'book' | 'lecture_note' | 'past_paper' | 'tutorial';
   department: string;
   year: number | null;
+  year_level: number | null;
   author: string | null;
   file_url: string | null;
   file_name: string | null;
@@ -59,6 +60,12 @@ const materialTypes = [
   { value: 'lecture_note', label: 'Lecture Note' },
   { value: 'past_paper', label: 'Past Paper' },
   { value: 'tutorial', label: 'Tutorial' },
+];
+
+const yearLevels = [
+  { value: 1, label: 'Year 1' },
+  { value: 2, label: 'Year 2' },
+  { value: 3, label: 'Year 3' },
 ];
 
 export default function MyMaterials() {
@@ -78,6 +85,7 @@ export default function MyMaterials() {
     type: 'book' | 'lecture_note' | 'past_paper' | 'tutorial';
     department: string;
     year: number;
+    yearLevel: number | null;
     author: string;
   }>({
     title: '',
@@ -85,6 +93,7 @@ export default function MyMaterials() {
     type: 'lecture_note',
     department: '',
     year: new Date().getFullYear(),
+    yearLevel: null,
     author: '',
   });
   const [file, setFile] = useState<File | null>(null);
@@ -170,6 +179,7 @@ export default function MyMaterials() {
       type: formData.type,
       department: formData.department,
       year: formData.year,
+      year_level: formData.yearLevel,
       author: formData.author || null,
       file_url: fileUrl,
       file_name: fileName,
@@ -216,6 +226,7 @@ export default function MyMaterials() {
         type: formData.type,
         department: formData.department,
         year: formData.year,
+        year_level: formData.yearLevel,
         author: formData.author || null,
         file_url: fileUrl,
         file_name: fileName,
@@ -264,6 +275,7 @@ export default function MyMaterials() {
       type: 'lecture_note',
       department: '',
       year: new Date().getFullYear(),
+      yearLevel: null,
       author: '',
     });
     setFile(null);
@@ -278,6 +290,7 @@ export default function MyMaterials() {
       type: material.type,
       department: material.department,
       year: material.year || new Date().getFullYear(),
+      yearLevel: material.year_level,
       author: material.author || '',
     });
     setIsEditOpen(true);
@@ -379,7 +392,7 @@ export default function MyMaterials() {
                     </Select>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="year">Year</Label>
                     <Input
@@ -388,6 +401,19 @@ export default function MyMaterials() {
                       value={formData.year}
                       onChange={(e) => setFormData({ ...formData, year: parseInt(e.target.value) })}
                     />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Year Level *</Label>
+                    <Select value={formData.yearLevel?.toString() || ''} onValueChange={(value) => setFormData({ ...formData, yearLevel: parseInt(value) })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select level" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {yearLevels.map(level => (
+                          <SelectItem key={level.value} value={level.value.toString()}>{level.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="author">Author</Label>
@@ -580,7 +606,7 @@ export default function MyMaterials() {
                   </Select>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="edit-year">Year</Label>
                   <Input
@@ -589,6 +615,19 @@ export default function MyMaterials() {
                     value={formData.year}
                     onChange={(e) => setFormData({ ...formData, year: parseInt(e.target.value) })}
                   />
+                </div>
+                <div className="space-y-2">
+                  <Label>Year Level *</Label>
+                  <Select value={formData.yearLevel?.toString() || ''} onValueChange={(value) => setFormData({ ...formData, yearLevel: parseInt(value) })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select level" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {yearLevels.map(level => (
+                        <SelectItem key={level.value} value={level.value.toString()}>{level.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="edit-author">Author</Label>
