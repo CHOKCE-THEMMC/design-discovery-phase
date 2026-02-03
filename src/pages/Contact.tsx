@@ -103,9 +103,11 @@ const Contact = () => {
                     <div>
                       <h3 className="font-semibold text-foreground mb-1">Our Location</h3>
                       <p className="text-sm text-muted-foreground">
-                        DTI Campus, Main Library Building
+                        P O Box 99999
                         <br />
-                        123 Education Avenue
+                        Plot 0612 Kanyanye Extension
+                        <br />
+                        Ndola, Zambia
                       </p>
                     </div>
                   </CardContent>
@@ -119,10 +121,10 @@ const Contact = () => {
                     <div>
                       <h3 className="font-semibold text-foreground mb-1">Email Us</h3>
                       <a 
-                        href="mailto:library@dti.edu" 
+                        href="mailto:chunguobed5@gmail.com" 
                         className="text-sm text-primary hover:underline"
                       >
-                        library@dti.edu
+                        chunguobed5@gmail.com
                       </a>
                       <p className="text-sm text-muted-foreground mt-1">
                         We reply within 24 hours
@@ -139,7 +141,7 @@ const Contact = () => {
                     <div>
                       <h3 className="font-semibold text-foreground mb-1">Call Us</h3>
                       <p className="text-sm text-muted-foreground">
-                        +1 (555) 123-4567
+                        +260768483190
                         <br />
                         Mon-Fri, 9am-5pm
                       </p>

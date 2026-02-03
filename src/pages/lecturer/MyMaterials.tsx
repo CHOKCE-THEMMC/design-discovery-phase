@@ -466,10 +466,10 @@ export default function MyMaterials() {
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-yellow-600">Pending</CardTitle>
+              <CardTitle className="text-sm font-medium text-yellow-600 dark:text-yellow-400">Pending</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-yellow-600">{stats.pending}</div>
+              <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{stats.pending}</div>
             </CardContent>
           </Card>
           <Card>

@@ -31,11 +31,6 @@ const team = [
     description: "Dedicated to enhancing student experience",
     image: "rabeccachipasha.jpeg",
   },
-  {
-    name: "David Miller",
-    role: "Technical Lead",
-    description: "Building seamless digital experiences",
-  },
 ];
 
 const teamImages: Record<string, string> = {};
