@@ -14,19 +14,22 @@ import { supabase } from "@/integrations/supabase/client";
 
 const team = [
   {
-    name: "Dr. Sarah Johnson",
-    role: "Library Director",
+    name: "Chungu Obed",
+    role: "Lecturer",
     description: "20+ years in academic library management",
+    image: "chunguobed.jpeg",
   },
   {
-    name: "Prof. Michael Chen",
-    role: "Head of Digital Resources",
+    name: "Mwaba Hendrix",
+    role: "Coordinator",
     description: "Expert in digital learning technologies",
+    image: "MwabaHendrix.jpeg",
   },
   {
-    name: "Dr. Emily Watson",
-    role: "Student Success Coordinator",
+    name: "Rabecca Chipasha",
+    role: "Lecturer",
     description: "Dedicated to enhancing student experience",
+    image: "rabeccachipasha.jpeg",
   },
   {
     name: "David Miller",
@@ -35,7 +38,24 @@ const team = [
   },
 ];
 
+const teamImages: Record<string, string> = {};
+
 const About = () => {
+  // Dynamically load team images
+  const loadTeamImages = () => {
+    const images = import.meta.glob('../assets/team/*.{png,jpg,jpeg,svg}', { 
+      eager: true,
+      import: 'default'
+    });
+    Object.entries(images).forEach(([path, image]) => {
+      const fileName = path.split('/').pop();
+      if (fileName) {
+        teamImages[fileName] = image as string;
+      }
+    });
+  };
+  
+  loadTeamImages();
   const { data: libraryStats } = useLibraryStats();
   const { user } = useAuth();
   const { addNotification } = useNotifications();
@@ -47,6 +67,7 @@ const About = () => {
   });
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [zoomedImage, setZoomedImage] = useState<string | null>(null);
 
   const stats = [
     { value: libraryStats ? formatStatCount(libraryStats.totalResources) : "0+", label: "Academic Resources", icon: BookOpen },
@@ -255,10 +276,24 @@ const About = () => {
               {team.map((member) => (
                 <Card key={member.name} className="bg-card border-border hover-lift">
                   <CardContent className="p-6 text-center">
-                    <div className="w-20 h-20 bg-gradient-to-br from-primary to-library-burgundy rounded-full mx-auto mb-4 flex items-center justify-center">
-                      <span className="text-2xl font-bold text-white">
-                        {member.name.split(' ').map(n => n[0]).join('')}
-                      </span>
+                    <div 
+                      className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-4 cursor-pointer transition-transform hover:scale-110"
+                      onClick={() => {
+                        if (member.image && teamImages[member.image]) {
+                          setZoomedImage(teamImages[member.image]);
+                        }
+                      }}
+                    >
+                      {member.image && teamImages[member.image] ? (
+                        // @ts-ignore: imported image
+                        <img src={teamImages[member.image]} alt={member.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-primary to-library-burgundy flex items-center justify-center">
+                          <span className="text-2xl font-bold text-white">
+                            {member.name.split(' ').map(n => n[0]).join('')}
+                          </span>
+                        </div>
+                      )}
                     </div>
                     <h3 className="font-semibold text-foreground">{member.name}</h3>
                     <p className="text-sm text-primary font-medium">{member.role}</p>
@@ -393,6 +428,31 @@ const About = () => {
           </div>
         </section>
       </main>
+
+      {/* Zoomed Image Modal */}
+      {zoomedImage && (
+        <div 
+          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
+          onClick={() => setZoomedImage(null)}
+        >
+          <div 
+            className="relative max-w-2xl w-full animate-in zoom-in-95"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img 
+              src={zoomedImage} 
+              alt="Zoomed" 
+              className="w-full h-auto rounded-lg shadow-2xl"
+            />
+            <button
+              onClick={() => setZoomedImage(null)}
+              className="absolute top-4 right-4 bg-white/20 hover:bg-white/40 text-white rounded-full w-10 h-10 flex items-center justify-center transition-colors"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>
