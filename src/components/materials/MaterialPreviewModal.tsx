@@ -20,7 +20,7 @@ const MaterialPreviewModal = ({ material, isOpen, onClose }: MaterialPreviewModa
   const [showOverlay, setShowOverlay] = useState(false);
 
   const isVideo = material?.isVideo || material?.contentType === 'video_file' || material?.contentType === 'video_link';
-  const previewLimit = material?.previewPages || (isVideo ? 30 : 3);
+  const previewLimit = material?.previewPages || (isVideo ? 30 : 4);
   const isGuest = !user;
 
   useEffect(() => {

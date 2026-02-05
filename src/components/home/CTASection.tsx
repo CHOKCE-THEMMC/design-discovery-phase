@@ -2,9 +2,16 @@ import { Link } from "react-router-dom";
 import { ArrowRight, UserPlus, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLibraryStats, formatStatCount } from "@/hooks/use-library-stats";
+import { useAuth } from "@/hooks/use-auth";
 
 const CTASection = () => {
   const { data: stats } = useLibraryStats();
+  const { user } = useAuth();
+
+  // Don't show CTA section for logged-in users
+  if (user) {
+    return null;
+  }
 
   return (
     <section className="py-20 bg-background">

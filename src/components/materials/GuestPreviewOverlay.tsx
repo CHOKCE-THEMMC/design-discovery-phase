@@ -7,7 +7,7 @@ interface GuestPreviewOverlayProps {
   previewLimit?: number;
 }
 
-const GuestPreviewOverlay = ({ type, previewLimit = 3 }: GuestPreviewOverlayProps) => {
+const GuestPreviewOverlay = ({ type, previewLimit = 4 }: GuestPreviewOverlayProps) => {
   return (
     <div className="absolute inset-0 bg-gradient-to-t from-background via-background/95 to-transparent flex flex-col items-center justify-end pb-8 px-4 text-center">
       <div className="bg-card border border-border rounded-xl p-6 shadow-xl max-w-sm mx-auto backdrop-blur-sm">

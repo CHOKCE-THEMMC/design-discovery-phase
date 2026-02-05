@@ -14,7 +14,18 @@ import {
   TableRow 
 } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Shield, User, Users, Crown, CheckCircle2, XCircle, Clock } from 'lucide-react';
+import { Search, Shield, User, Users, Crown, CheckCircle2, XCircle, Clock, Trash2 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/use-auth';
 import type { Database } from '@/integrations/supabase/types';
@@ -168,6 +179,53 @@ export function UsersManagement() {
     }
   };
 
+  const handleDeleteUser = async (userId: string, userName: string) => {
+    if (!isAdmin) {
+      toast.error('Only admins can delete users');
+      return;
+    }
+
+    try {
+      // Delete user's notifications
+      await supabase
+        .from('notifications')
+        .delete()
+        .eq('user_id', userId);
+
+      // Delete user's bookmarks
+      await supabase
+        .from('bookmarks')
+        .delete()
+        .eq('user_id', userId);
+
+      // Delete user's viewing history
+      await supabase
+        .from('viewing_history')
+        .delete()
+        .eq('user_id', userId);
+
+      // Delete user's role
+      await supabase
+        .from('user_roles')
+        .delete()
+        .eq('user_id', userId);
+
+      // Delete user's profile
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('user_id', userId);
+
+      if (profileError) throw profileError;
+
+      toast.success(`User "${userName}" has been deleted`);
+      fetchUsers();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast.error('Failed to delete user. Note: The auth user must be deleted from the backend.');
+    }
+  };
+
   const getRoleBadge = (role: string) => {
     switch (role) {
       case 'admin':
@@ -259,19 +317,45 @@ export function UsersManagement() {
                   </TableCell>
                   <TableCell className="text-right">
                     {isAdmin && user.user_id !== currentUser?.id && (
-                      <Select
-                        value={user.role || 'user'}
-                        onValueChange={(value) => handleRoleChange(user.user_id, value, user.full_name || 'User')}
-                      >
-                        <SelectTrigger className="w-32">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="user">User</SelectItem>
-                          <SelectItem value="moderator">Moderator</SelectItem>
-                          <SelectItem value="admin">Admin</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <div className="flex items-center justify-end gap-2">
+                        <Select
+                          value={user.role || 'user'}
+                          onValueChange={(value) => handleRoleChange(user.user_id, value, user.full_name || 'User')}
+                        >
+                          <SelectTrigger className="w-32">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="user">User</SelectItem>
+                            <SelectItem value="moderator">Moderator</SelectItem>
+                            <SelectItem value="admin">Admin</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete User</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete "{user.full_name || 'this user'}"? This action cannot be undone and will remove all their data.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDeleteUser(user.user_id, user.full_name || 'User')}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     )}
                   </TableCell>
                 </TableRow>

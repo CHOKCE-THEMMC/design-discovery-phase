@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAuth } from "@/hooks/use-auth";
 import { useNotifications } from "@/hooks/use-notifications";
+import { Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   User, 
@@ -33,7 +34,7 @@ interface DownloadHistory {
 }
 
 export default function Dashboard() {
-  const { user, userProfile } = useAuth();
+  const { user, userProfile, userRole, isAdmin, isModerator, isApproved } = useAuth();
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const [activeTab, setActiveTab] = useState("overview");
   const [recentMaterials, setRecentMaterials] = useState<any[]>([]);
@@ -42,6 +43,18 @@ export default function Dashboard() {
   useEffect(() => {
     fetchRecentMaterials();
   }, []);
+
+  // Get display role text
+  const getRoleDisplayText = () => {
+    if (isAdmin) return "Administrator";
+    if (isModerator) return "Lecturer";
+    return "Student";
+  };
+
+  // Redirect admins to admin dashboard
+  if (isAdmin) {
+    return <Navigate to="/admin" replace />;
+  }
 
   const fetchRecentMaterials = async () => {
     try {
@@ -96,7 +109,7 @@ export default function Dashboard() {
             </div>
             <div>
               <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground">
-                Welcome back, {userProfile?.full_name || "Student"}!
+                Welcome back, {userProfile?.full_name || getRoleDisplayText()}!
               </h1>
               <p className="text-muted-foreground flex items-center gap-2">
                 <Mail className="h-4 w-4" />
@@ -311,7 +324,7 @@ export default function Dashboard() {
                       {userProfile?.full_name || "Not set"}
                     </h3>
                     <p className="text-muted-foreground">{user?.email}</p>
-                    <Badge variant="secondary" className="mt-2">Student</Badge>
+                    <Badge variant="secondary" className="mt-2">{getRoleDisplayText()}</Badge>
                   </div>
                 </div>
 
