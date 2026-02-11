@@ -255,7 +255,7 @@ const Navbar = () => {
                   <div className="px-3 py-2">
                     <p className="text-sm font-medium truncate">{user.email}</p>
                     <p className="text-xs text-muted-foreground capitalize">
-                      {isAdmin ? 'Admin' : isModerator ? 'Moderator' : 'User'}
+                      {isAdmin ? 'Administrator' : isModerator ? 'Lecturer' : 'Student'}
                     </p>
                   </div>
                   <DropdownMenuSeparator />
@@ -324,6 +324,63 @@ const Navbar = () => {
                 />
               </DialogContent>
             </Dialog>
+            
+            {user && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-9 w-9 relative">
+                    <Bell className="h-5 w-5 text-foreground/70" />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive text-destructive-foreground text-[10px] flex items-center justify-center">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </span>
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-72 bg-popover border-border">
+                  <div className="flex items-center justify-between px-3 py-2 border-b border-border">
+                    <span className="font-medium text-sm">Notifications</span>
+                    {unreadCount > 0 && (
+                      <Button variant="ghost" size="sm" onClick={markAllAsRead} className="text-xs h-6">
+                        Mark all read
+                      </Button>
+                    )}
+                  </div>
+                  <div className="max-h-48 overflow-y-auto">
+                    {notifications.length === 0 ? (
+                      <div className="px-3 py-4 text-center text-muted-foreground text-sm">
+                        No notifications
+                      </div>
+                    ) : (
+                      notifications.slice(0, 5).map((notif) => (
+                        <div 
+                          key={notif.id} 
+                          className={cn(
+                            "px-3 py-2 border-b border-border last:border-0 cursor-pointer hover:bg-muted/50",
+                            !notif.read && "bg-primary/5"
+                          )}
+                          onClick={() => markAsRead(notif.id)}
+                        >
+                          <p className="text-sm font-medium">{notif.title}</p>
+                          <p className="text-xs text-muted-foreground line-clamp-2">{notif.message}</p>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  {notifications.length > 0 && (
+                    <div className="px-3 py-2 border-t border-border">
+                      <Link 
+                        to="/dashboard" 
+                        className="text-xs text-primary hover:underline"
+                      >
+                        View all notifications
+                      </Link>
+                    </div>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+            
             <ThemeToggle />
             <button className="p-2 text-foreground" onClick={() => setIsOpen(!isOpen)}>
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -378,33 +435,72 @@ const Navbar = () => {
               >
                 About
               </Link>
-              {isLecturer && (
-                <Link 
-                  to="/my-materials" 
-                  className={cn(
-                    "px-4 py-2 rounded-md",
-                    isActiveLink("/my-materials") ? "bg-primary/10 text-primary font-medium" : "text-foreground/80 hover:text-foreground hover:bg-muted"
-                  )} 
-                  onClick={() => setIsOpen(false)}
-                >
-                  My Materials
-                </Link>
+              
+              {user && (
+                <>
+                  <div className="border-t border-border my-2" />
+                  <Link 
+                    to="/dashboard" 
+                    className={cn(
+                      "px-4 py-2 rounded-md flex items-center gap-2",
+                      isActiveLink("/dashboard") ? "bg-primary/10 text-primary font-medium" : "text-foreground/80 hover:text-foreground hover:bg-muted"
+                    )} 
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <LayoutDashboard className="h-4 w-4" /> My Dashboard
+                  </Link>
+                  <Link 
+                    to="/bookmarks" 
+                    className={cn(
+                      "px-4 py-2 rounded-md flex items-center gap-2",
+                      isActiveLink("/bookmarks") ? "bg-primary/10 text-primary font-medium" : "text-foreground/80 hover:text-foreground hover:bg-muted"
+                    )} 
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <Bookmark className="h-4 w-4" /> My Bookmarks
+                  </Link>
+                  <Link 
+                    to="/history" 
+                    className={cn(
+                      "px-4 py-2 rounded-md flex items-center gap-2",
+                      isActiveLink("/history") ? "bg-primary/10 text-primary font-medium" : "text-foreground/80 hover:text-foreground hover:bg-muted"
+                    )} 
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <History className="h-4 w-4" /> Viewing History
+                  </Link>
+                  {isLecturer && (
+                    <Link 
+                      to="/my-materials" 
+                      className={cn(
+                        "px-4 py-2 rounded-md flex items-center gap-2",
+                        isActiveLink("/my-materials") ? "bg-primary/10 text-primary font-medium" : "text-foreground/80 hover:text-foreground hover:bg-muted"
+                      )} 
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <FileText className="h-4 w-4" /> My Materials
+                    </Link>
+                  )}
+                  {isAdmin && (
+                    <Link 
+                      to="/admin" 
+                      className={cn(
+                        "px-4 py-2 text-primary rounded-md flex items-center gap-2",
+                        isActiveLink("/admin") ? "bg-primary/10 font-medium" : "hover:bg-muted"
+                      )} 
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <Shield className="h-4 w-4" /> Admin Dashboard
+                    </Link>
+                  )}
+                </>
               )}
-              {isAdmin && (
-                <Link 
-                  to="/admin" 
-                  className={cn(
-                    "px-4 py-2 text-primary rounded-md",
-                    isActiveLink("/admin") ? "bg-primary/10 font-medium" : "hover:bg-muted"
-                  )} 
-                  onClick={() => setIsOpen(false)}
-                >
-                  Admin Dashboard
-                </Link>
-              )}
+              
               <div className="flex gap-2 px-4 pt-4 border-t border-border mt-2">
                 {user ? (
-                  <Button variant="outline" className="w-full" onClick={() => { handleSignOut(); setIsOpen(false); }}>Sign Out</Button>
+                  <Button variant="outline" className="w-full" onClick={() => { handleSignOut(); setIsOpen(false); }}>
+                    <LogOut className="h-4 w-4 mr-2" /> Sign Out
+                  </Button>
                 ) : (
                   <>
                     <Link to="/login" className="flex-1" onClick={() => setIsOpen(false)}><Button variant="outline" className="w-full">Sign In</Button></Link>

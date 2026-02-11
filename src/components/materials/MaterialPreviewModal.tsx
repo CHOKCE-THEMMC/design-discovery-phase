@@ -14,18 +14,16 @@ interface MaterialPreviewModalProps {
 
 const MaterialPreviewModal = ({ material, isOpen, onClose }: MaterialPreviewModalProps) => {
   const { user } = useAuth();
-  const [currentPage, setCurrentPage] = useState(1);
   const [zoom, setZoom] = useState(100);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [showOverlay, setShowOverlay] = useState(false);
 
   const isVideo = material?.isVideo || material?.contentType === 'video_file' || material?.contentType === 'video_link';
-  const previewLimit = material?.previewPages || (isVideo ? 30 : 4);
+  const previewLimit = isVideo ? 30 : 4;
   const isGuest = !user;
 
   useEffect(() => {
     if (isOpen) {
-      setCurrentPage(1);
       setZoom(100);
       setShowOverlay(false);
     }
@@ -48,34 +46,10 @@ const MaterialPreviewModal = ({ material, isOpen, onClose }: MaterialPreviewModa
     return () => video.removeEventListener('timeupdate', handleTimeUpdate);
   }, [isGuest, isVideo, previewLimit]);
 
-  // Handle page navigation restriction for guests
-  useEffect(() => {
-    if (isGuest && !isVideo && currentPage >= previewLimit) {
-      setShowOverlay(true);
-    } else {
-      setShowOverlay(false);
-    }
-  }, [currentPage, isGuest, isVideo, previewLimit]);
-
   if (!material) return null;
 
   const handleZoomIn = () => setZoom((prev) => Math.min(prev + 25, 200));
   const handleZoomOut = () => setZoom((prev) => Math.max(prev - 25, 50));
-
-  const handleNextPage = () => {
-    if (isGuest && currentPage >= previewLimit) {
-      setShowOverlay(true);
-      return;
-    }
-    setCurrentPage((prev) => prev + 1);
-  };
-
-  const handlePrevPage = () => {
-    setCurrentPage((prev) => Math.max(prev - 1, 1));
-    if (currentPage <= previewLimit) {
-      setShowOverlay(false);
-    }
-  };
 
   const handleOpenExternal = () => {
     const url = material.fileUrl || material.videoUrl;
@@ -93,9 +67,7 @@ const MaterialPreviewModal = ({ material, isOpen, onClose }: MaterialPreviewModa
     if (isVideo) {
       const videoUrl = material.videoUrl || material.fileUrl;
       
-      // Check if it's a YouTube or external video link
       if (material.contentType === 'video_link' && videoUrl) {
-        // For YouTube/Vimeo embeds
         if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
           const videoId = videoUrl.includes('youtu.be') 
             ? videoUrl.split('/').pop() 
@@ -112,7 +84,6 @@ const MaterialPreviewModal = ({ material, isOpen, onClose }: MaterialPreviewModa
             </div>
           );
         }
-        // Other video links - show message
         return (
           <div className="flex flex-col items-center justify-center p-8 text-center">
             <p className="text-muted-foreground mb-4">This is an external video link</p>
@@ -124,7 +95,6 @@ const MaterialPreviewModal = ({ material, isOpen, onClose }: MaterialPreviewModa
         );
       }
 
-      // Direct video file
       return (
         <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden">
           <video
@@ -141,9 +111,34 @@ const MaterialPreviewModal = ({ material, isOpen, onClose }: MaterialPreviewModa
       );
     }
 
-    // Document preview using Google Docs viewer
+    // Document preview
     const fileUrl = material.fileUrl;
     if (fileUrl) {
+      // For guests: show a restricted preview with overlay after a brief view
+      if (isGuest) {
+        return (
+          <div className="relative w-full h-[70vh] bg-muted rounded-lg overflow-hidden">
+            {/* Show limited preview - only first portion visible then blocked */}
+            <div className="w-full h-full overflow-hidden relative">
+              <iframe
+                src={`https://docs.google.com/viewer?url=${encodeURIComponent(fileUrl)}&embedded=true`}
+                className="w-full h-full border-0"
+                style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'top left', width: `${10000 / zoom}%`, height: `${10000 / zoom}%` }}
+              />
+              {/* Hard block: overlay that covers most of the document, only allowing ~4 pages visible area */}
+              <div className="absolute inset-0 pointer-events-none">
+                {/* Transparent area at top for ~4 pages preview */}
+                <div className="h-[30%]" />
+                {/* Solid block covering the rest */}
+                <div className="h-[70%] bg-gradient-to-b from-background/80 via-background to-background pointer-events-auto" />
+              </div>
+            </div>
+            <GuestPreviewOverlay type="document" previewLimit={previewLimit} />
+          </div>
+        );
+      }
+
+      // For logged-in users: full access
       const googleDocsUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(fileUrl)}&embedded=true`;
       return (
         <div className="relative w-full h-[70vh] bg-muted rounded-lg overflow-hidden">
@@ -152,7 +147,6 @@ const MaterialPreviewModal = ({ material, isOpen, onClose }: MaterialPreviewModa
             className="w-full h-full border-0"
             style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'top left', width: `${10000 / zoom}%`, height: `${10000 / zoom}%` }}
           />
-          {showOverlay && <GuestPreviewOverlay type="document" previewLimit={previewLimit} />}
         </div>
       );
     }
@@ -168,14 +162,14 @@ const MaterialPreviewModal = ({ material, isOpen, onClose }: MaterialPreviewModa
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader className="flex-shrink-0">
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-lg font-semibold truncate pr-4">
+          <div className="flex items-center justify-between gap-2">
+            <DialogTitle className="text-base sm:text-lg font-semibold truncate pr-2">
               {material.title}
             </DialogTitle>
             {isGuest && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted px-3 py-1 rounded-full">
+              <div className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground bg-muted px-2 sm:px-3 py-1 rounded-full whitespace-nowrap">
                 <Lock className="h-3 w-3" />
-                <span>Limited Preview</span>
+                <span>4 Pages Only</span>
               </div>
             )}
           </div>
@@ -186,14 +180,14 @@ const MaterialPreviewModal = ({ material, isOpen, onClose }: MaterialPreviewModa
         </div>
 
         {/* Controls */}
-        <div className="flex-shrink-0 flex items-center justify-between pt-4 border-t">
-          <div className="flex items-center gap-2">
+        <div className="flex-shrink-0 flex items-center justify-between pt-4 border-t gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             {!isVideo && (
               <>
                 <Button variant="outline" size="sm" onClick={handleZoomOut} disabled={zoom <= 50}>
                   <ZoomOut className="h-4 w-4" />
                 </Button>
-                <span className="text-sm text-muted-foreground min-w-[4rem] text-center">{zoom}%</span>
+                <span className="text-xs sm:text-sm text-muted-foreground min-w-[3rem] text-center">{zoom}%</span>
                 <Button variant="outline" size="sm" onClick={handleZoomIn} disabled={zoom >= 200}>
                   <ZoomIn className="h-4 w-4" />
                 </Button>
@@ -201,16 +195,16 @@ const MaterialPreviewModal = ({ material, isOpen, onClose }: MaterialPreviewModa
             )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             {user && (
               <Button variant="outline" size="sm" onClick={handleOpenExternal}>
-                <ExternalLink className="h-4 w-4 mr-2" />
-                Open Full
+                <ExternalLink className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Open Full</span>
               </Button>
             )}
             <Button variant="ghost" size="sm" onClick={onClose}>
-              <X className="h-4 w-4 mr-2" />
-              Close
+              <X className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Close</span>
             </Button>
           </div>
         </div>
