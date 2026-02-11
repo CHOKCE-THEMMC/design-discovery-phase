@@ -11,7 +11,7 @@ import {
   TableHeader, 
   TableRow 
 } from '@/components/ui/table';
-import { UserCheck, UserX, Clock, User, CheckCircle2, XCircle } from 'lucide-react';
+import { UserCheck, Clock, User, CheckCircle2, XCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/use-auth';
 
@@ -29,6 +29,7 @@ export function UserApprovals() {
   const { user: currentUser } = useAuth();
   const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([]);
   const [loading, setLoading] = useState(true);
+  const [processingIds, setProcessingIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     fetchPendingUsers();
@@ -53,7 +54,12 @@ export function UserApprovals() {
   };
 
   const handleApproval = async (userId: string, status: 'approved' | 'rejected', userName: string) => {
+    if (processingIds.has(userId)) return;
+    
+    setProcessingIds(prev => new Set(prev).add(userId));
+    
     try {
+      // Update the profile approval status
       const { error } = await supabase
         .from('profiles')
         .update({ approval_status: status })
@@ -61,25 +67,53 @@ export function UserApprovals() {
 
       if (error) throw error;
 
-      // Send notification to the user
-      await supabase
-        .from('notifications')
-        .insert({
-          user_id: userId,
-          title: status === 'approved' 
-            ? '🎉 Account Approved!' 
-            : '❌ Account Not Approved',
-          message: status === 'approved'
-            ? 'Your account has been approved. You now have full access to the DTI Library resources.'
-            : 'Your account registration was not approved. Please contact administration for more information.',
-          type: status === 'approved' ? 'approval' : 'rejection'
-        });
+      // Send notification to the user about their approval/rejection
+      try {
+        await supabase
+          .from('notifications')
+          .insert({
+            user_id: userId,
+            title: status === 'approved' 
+              ? '🎉 Account Approved!' 
+              : '❌ Account Not Approved',
+            message: status === 'approved'
+              ? 'Your account has been approved! You now have full access to the DTI Library resources. Welcome aboard!'
+              : 'Your account registration was not approved. Please contact administration for more information.',
+            type: status === 'approved' ? 'approval' : 'rejection'
+          });
+      } catch (notifErr) {
+        console.log('Notification insert failed (may be RLS):', notifErr);
+      }
 
-      toast.success(`User ${status === 'approved' ? 'approved' : 'rejected'} successfully`);
-      fetchPendingUsers();
+      // Notify the admin who performed the action
+      if (currentUser?.id) {
+        try {
+          await supabase
+            .from('notifications')
+            .insert({
+              user_id: currentUser.id,
+              title: `🔔 User ${status === 'approved' ? 'Approved' : 'Rejected'}`,
+              message: `${userName} has been ${status}.`,
+              type: 'admin_notification'
+            });
+        } catch (notifErr) {
+          console.log('Admin notification failed:', notifErr);
+        }
+      }
+
+      toast.success(`User "${userName}" has been ${status}`);
+      
+      // Remove from local state immediately for responsive UI
+      setPendingUsers(prev => prev.filter(u => u.user_id !== userId));
     } catch (error) {
       console.error('Error updating user status:', error);
       toast.error('Failed to update user status');
+    } finally {
+      setProcessingIds(prev => {
+        const next = new Set(prev);
+        next.delete(userId);
+        return next;
+      });
     }
   };
 
@@ -108,14 +142,14 @@ export function UserApprovals() {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="rounded-lg border border-border overflow-hidden">
+        <div className="rounded-lg border border-border overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/50">
                 <TableHead>User</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Program</TableHead>
-                <TableHead>Registered</TableHead>
+                <TableHead className="hidden sm:table-cell">Email</TableHead>
+                <TableHead className="hidden md:table-cell">Program</TableHead>
+                <TableHead className="hidden md:table-cell">Registered</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -140,47 +174,52 @@ export function UserApprovals() {
                 pendingUsers.map((user) => (
                   <TableRow key={user.id}>
                     <TableCell>
-                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                          <User className="h-5 w-5 text-primary" />
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                          <User className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                         </div>
-                        <span className="font-medium">{user.full_name || 'Unknown'}</span>
+                        <div className="min-w-0">
+                          <span className="font-medium block truncate">{user.full_name || 'Unknown'}</span>
+                          <span className="text-xs text-muted-foreground sm:hidden block truncate">{user.email || 'N/A'}</span>
+                        </div>
                       </div>
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell className="text-muted-foreground hidden sm:table-cell">
                       {user.email || 'N/A'}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden md:table-cell">
                       {user.enrolled_program ? (
-                        <Badge variant="secondary">{user.enrolled_program}</Badge>
+                        <Badge variant="secondary" className="text-xs">{user.enrolled_program}</Badge>
                       ) : (
-                        <span className="text-muted-foreground">Not specified</span>
+                        <span className="text-muted-foreground text-xs">Not specified</span>
                       )}
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell className="text-muted-foreground hidden md:table-cell">
                       {new Date(user.created_at).toLocaleDateString()}
                     </TableCell>
                     <TableCell>
                       {getStatusBadge(user.approval_status)}
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
+                      <div className="flex items-center justify-end gap-1 sm:gap-2">
                         <Button
                           size="sm"
-                          variant="default"
                           onClick={() => handleApproval(user.user_id, 'approved', user.full_name || 'User')}
-                          className="bg-green-600 hover:bg-green-700"
+                          className="bg-green-600 hover:bg-green-700 text-white h-8 px-2 sm:px-3"
+                          disabled={processingIds.has(user.user_id)}
                         >
-                          <CheckCircle2 className="h-4 w-4 mr-1" />
-                          Approve
+                          <CheckCircle2 className="h-4 w-4 sm:mr-1" />
+                          <span className="hidden sm:inline">Approve</span>
                         </Button>
                         <Button
                           size="sm"
                           variant="destructive"
                           onClick={() => handleApproval(user.user_id, 'rejected', user.full_name || 'User')}
+                          className="h-8 px-2 sm:px-3"
+                          disabled={processingIds.has(user.user_id)}
                         >
-                          <XCircle className="h-4 w-4 mr-1" />
-                          Reject
+                          <XCircle className="h-4 w-4 sm:mr-1" />
+                          <span className="hidden sm:inline">Reject</span>
                         </Button>
                       </div>
                     </TableCell>
