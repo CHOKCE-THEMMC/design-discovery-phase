@@ -85,6 +85,32 @@ export function UserApprovals() {
         console.log('Notification insert failed (may be RLS):', notifErr);
       }
 
+      // Try to send email notification
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('email')
+          .eq('user_id', userId)
+          .maybeSingle();
+        
+        if (profile?.email) {
+          await supabase.functions.invoke('send-notification-email', {
+            body: {
+              to: profile.email,
+              subject: status === 'approved' 
+                ? '🎉 Your DTI Library Account Has Been Approved!'
+                : '❌ DTI Library Account Update',
+              html: status === 'approved'
+                ? `<h2>Welcome to DTI Library!</h2><p>Hi ${userName},</p><p>Your account has been approved. You now have full access to all DTI Library resources.</p><p>Log in now to start exploring!</p>`
+                : `<h2>Account Update</h2><p>Hi ${userName},</p><p>Unfortunately, your account was not approved at this time. Please contact administration for more details.</p>`,
+              type: status
+            }
+          });
+        }
+      } catch (emailErr) {
+        console.log('Email notification failed (non-critical):', emailErr);
+      }
+
       // Notify the admin who performed the action
       if (currentUser?.id) {
         try {
