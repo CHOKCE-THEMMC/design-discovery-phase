@@ -35,7 +35,7 @@ serve(async (req) => {
         'Authorization': `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: 'DTI Library <noreply@resend.dev>',
+        from: 'DTI Library <noreply@dti-library.com>',
         to: [to],
         subject,
         html,
