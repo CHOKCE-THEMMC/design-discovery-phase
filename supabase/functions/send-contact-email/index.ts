@@ -39,7 +39,7 @@ const handler = async (req: Request): Promise<Response> => {
         "Authorization": `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "DTI Library <onboarding@resend.dev>",
+        from: "DTI Library <noreply@dti-library.com>",
         to: [email],
         subject: "We received your message!",
         html: `
