@@ -85,15 +85,19 @@ const SearchAutocomplete = ({
     loadMaterials();
   }, []);
 
-  // Update suggestions as user types
+  // Debounced suggestions as user types
   useEffect(() => {
-    if (query.trim().length < 2) {
+    if (query.trim().length < 1) {
       setSuggestions([]);
       return;
     }
 
-    const results = searchMaterials(materials, query, { limit: 6, minScore: 0.15 });
-    setSuggestions(results);
+    const timer = setTimeout(() => {
+      const results = searchMaterials(materials, query, { limit: 8, minScore: 0.1 });
+      setSuggestions(results);
+    }, 150);
+
+    return () => clearTimeout(timer);
   }, [query, materials]);
 
   const saveRecentSearch = (searchTerm: string) => {
@@ -125,7 +129,7 @@ const SearchAutocomplete = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    const totalItems = suggestions.length + (query.trim().length < 2 ? recentSearches.length : 0);
+    const totalItems = suggestions.length + (query.trim().length < 1 ? recentSearches.length : 0);
 
     if (e.key === "ArrowDown") {
       e.preventDefault();
@@ -136,7 +140,7 @@ const SearchAutocomplete = ({
     } else if (e.key === "Enter") {
       e.preventDefault();
       if (selectedIndex >= 0) {
-        if (query.trim().length < 2 && selectedIndex < recentSearches.length) {
+        if (query.trim().length < 1 && selectedIndex < recentSearches.length) {
           handleSearch(recentSearches[selectedIndex]);
         } else if (selectedIndex < suggestions.length) {
           handleSelectMaterial(suggestions[selectedIndex].item);
@@ -155,7 +159,7 @@ const SearchAutocomplete = ({
     localStorage.removeItem(RECENT_SEARCHES_KEY);
   };
 
-  const showDropdown = isOpen && (suggestions.length > 0 || (query.trim().length < 2 && recentSearches.length > 0));
+  const showDropdown = isOpen && (suggestions.length > 0 || (query.trim().length < 1 && recentSearches.length > 0));
 
   return (
     <div className={cn("relative w-full", className)}>
@@ -187,7 +191,7 @@ const SearchAutocomplete = ({
 
       {showDropdown && (
         <div className="absolute top-full left-0 right-0 mt-1 bg-popover border border-border rounded-lg shadow-lg z-50 overflow-hidden">
-          {query.trim().length < 2 && recentSearches.length > 0 && (
+          {query.trim().length < 1 && recentSearches.length > 0 && (
             <div className="p-2">
               <div className="flex items-center justify-between px-2 py-1 text-xs text-muted-foreground">
                 <span className="flex items-center gap-1">
@@ -219,14 +223,14 @@ const SearchAutocomplete = ({
 
           {suggestions.length > 0 && (
             <div className="p-2">
-              {query.trim().length >= 2 && (
+              {query.trim().length >= 1 && (
                 <div className="px-2 py-1 text-xs text-muted-foreground">
                   Suggestions
                 </div>
               )}
               {suggestions.map(({ item, score }, idx) => {
                 const Icon = typeIcons[item.type] || Book;
-                const adjustedIdx = query.trim().length < 2 ? idx + recentSearches.length : idx;
+                const adjustedIdx = query.trim().length < 1 ? idx + recentSearches.length : idx;
                 return (
                   <button
                     key={item.id}
@@ -252,7 +256,7 @@ const SearchAutocomplete = ({
             </div>
           )}
 
-          {query.trim().length >= 2 && suggestions.length === 0 && (
+          {query.trim().length >= 1 && suggestions.length === 0 && (
             <div className="p-4 text-center text-sm text-muted-foreground">
               No materials found for "{query}"
             </div>
