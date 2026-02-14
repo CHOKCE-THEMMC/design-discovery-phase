@@ -60,8 +60,8 @@ const Register = () => {
       return;
     }
 
-    toast.success('Account created! Please wait for admin approval to access all features.');
-    navigate('/login');
+    toast.success('Account created! Please check your email to verify, then wait for admin approval.');
+    navigate('/?registered=true');
   };
 
   if (authLoading) {

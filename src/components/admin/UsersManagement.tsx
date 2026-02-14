@@ -14,7 +14,7 @@ import {
   TableRow 
 } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Shield, User, Users, Crown, CheckCircle2, XCircle, Clock, Trash2 } from 'lucide-react';
+import { Search, Shield, User, Users, Crown, CheckCircle2, XCircle, Clock, Trash2, GraduationCap } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -186,43 +186,18 @@ export function UsersManagement() {
     }
 
     try {
-      // Delete user's notifications
-      await supabase
-        .from('notifications')
-        .delete()
-        .eq('user_id', userId);
+      const { data, error } = await supabase.functions.invoke('delete-user', {
+        body: { userId },
+      });
 
-      // Delete user's bookmarks
-      await supabase
-        .from('bookmarks')
-        .delete()
-        .eq('user_id', userId);
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
 
-      // Delete user's viewing history
-      await supabase
-        .from('viewing_history')
-        .delete()
-        .eq('user_id', userId);
-
-      // Delete user's role
-      await supabase
-        .from('user_roles')
-        .delete()
-        .eq('user_id', userId);
-
-      // Delete user's profile
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .delete()
-        .eq('user_id', userId);
-
-      if (profileError) throw profileError;
-
-      toast.success(`User "${userName}" has been deleted`);
+      toast.success(`User "${userName}" has been completely deleted`);
       fetchUsers();
     } catch (error) {
       console.error('Error deleting user:', error);
-      toast.error('Failed to delete user. Note: The auth user must be deleted from the backend.');
+      toast.error('Failed to delete user');
     }
   };
 
@@ -232,6 +207,8 @@ export function UsersManagement() {
         return <Badge className="bg-primary/20 text-primary"><Crown className="h-3 w-3 mr-1" />Admin</Badge>;
       case 'moderator':
         return <Badge className="bg-library-burgundy/20 text-library-burgundy"><Shield className="h-3 w-3 mr-1" />Moderator</Badge>;
+      case 'lecturer':
+        return <Badge className="bg-blue-500/20 text-blue-600"><GraduationCap className="h-3 w-3 mr-1" />Lecturer</Badge>;
       default:
         return <Badge variant="secondary"><User className="h-3 w-3 mr-1" />User</Badge>;
     }
@@ -327,6 +304,7 @@ export function UsersManagement() {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="user">User</SelectItem>
+                            <SelectItem value="lecturer">Lecturer</SelectItem>
                             <SelectItem value="moderator">Moderator</SelectItem>
                             <SelectItem value="admin">Admin</SelectItem>
                           </SelectContent>
