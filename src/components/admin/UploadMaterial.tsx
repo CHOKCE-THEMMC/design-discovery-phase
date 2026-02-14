@@ -20,7 +20,8 @@ const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 10 }, (_, i) => currentYear - i);
 
 export function UploadMaterial() {
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, isLecturer } = useAuth();
+  const canAutoApprove = isAdmin;
   const [loading, setLoading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [uploadMode, setUploadMode] = useState<'document' | 'video_file' | 'video_link'>('document');
@@ -188,9 +189,9 @@ export function UploadMaterial() {
           file_name: fileName,
           file_size: fileSize,
           uploaded_by: user.id,
-          status: isAdmin ? 'approved' : 'pending',
-          approved_by: isAdmin ? user.id : null,
-          approved_at: isAdmin ? new Date().toISOString() : null,
+          status: canAutoApprove ? 'approved' : 'pending',
+          approved_by: canAutoApprove ? user.id : null,
+          approved_at: canAutoApprove ? new Date().toISOString() : null,
           is_video: uploadMode === 'video_file' || uploadMode === 'video_link',
           video_url: uploadMode === 'video_link' ? formData.videoUrl : null,
           content_type: uploadMode,
@@ -256,7 +257,7 @@ export function UploadMaterial() {
           Upload New Material
         </CardTitle>
         <p className="text-sm text-muted-foreground">
-          {isAdmin 
+          {canAutoApprove 
             ? 'Materials uploaded by admins are automatically approved'
             : 'Materials will be reviewed before being published'}
         </p>

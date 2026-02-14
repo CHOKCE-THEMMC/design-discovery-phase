@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
-type AppRole = 'admin' | 'moderator' | 'user';
+type AppRole = 'admin' | 'moderator' | 'user' | 'lecturer';
 
 interface UserProfile {
   id: string;
@@ -183,7 +183,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const isAdmin = userRole === 'admin';
   const isModerator = userRole === 'moderator' || userRole === 'admin';
-  const isLecturer = userRole === 'moderator' || userRole === 'admin';
+  const isLecturer = userRole === 'lecturer' || userRole === 'moderator' || userRole === 'admin';
   const isApproved = userProfile?.approval_status === 'approved' || isAdmin;
   const isPending = userProfile?.approval_status === 'pending';
 

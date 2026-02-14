@@ -26,7 +26,7 @@ import { cn } from "@/lib/utils";
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const { user, signOut, isAdmin, isModerator } = useAuth();
+  const { user, signOut, isAdmin, isModerator, isLecturer } = useAuth();
   const { unreadCount, notifications, markAsRead, markAllAsRead } = useNotifications();
   const location = useLocation();
   const navigate = useNavigate();
@@ -47,7 +47,7 @@ const Navbar = () => {
     return location.pathname.startsWith(href);
   };
 
-  const isLecturer = isModerator || isAdmin;
+  // isLecturer already comes from useAuth and includes lecturer, moderator, admin roles
 
   return (
     <nav className="sticky top-0 z-50 w-full glass-effect">
@@ -255,7 +255,7 @@ const Navbar = () => {
                   <div className="px-3 py-2">
                     <p className="text-sm font-medium truncate">{user.email}</p>
                     <p className="text-xs text-muted-foreground capitalize">
-                      {isAdmin ? 'Administrator' : isModerator ? 'Lecturer' : 'Student'}
+                      {isAdmin ? 'Administrator' : isModerator ? 'Moderator' : isLecturer ? 'Lecturer' : 'Student'}
                     </p>
                   </div>
                   <DropdownMenuSeparator />
