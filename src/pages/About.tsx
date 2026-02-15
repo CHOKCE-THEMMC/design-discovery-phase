@@ -109,7 +109,28 @@ const About = () => {
         throw dbError;
       }
 
-      // Try to send email notification (optional - will fail without RESEND_API_KEY)
+      // Notify ALL administrators about the new contact message
+      try {
+        const { data: adminRoles } = await supabase
+          .from('user_roles')
+          .select('user_id')
+          .eq('role', 'admin');
+
+        if (adminRoles && adminRoles.length > 0) {
+          const notifications = adminRoles.map((admin) => ({
+            user_id: admin.user_id,
+            title: '📩 New Contact Message',
+            message: `From: ${formData.name.trim()} (${formData.email.trim()}) — "${formData.message.trim().substring(0, 100)}${formData.message.trim().length > 100 ? '...' : ''}"`,
+            type: 'contact_message',
+          }));
+
+          await supabase.from('notifications').insert(notifications);
+        }
+      } catch (notifErr) {
+        console.log('Admin notification failed:', notifErr);
+      }
+
+      // Try to send email notification
       try {
         const { error: emailError } = await supabase.functions.invoke('send-contact-email', {
           body: {

@@ -119,9 +119,9 @@ export function UsersManagement() {
       }
 
       // If user is being promoted to admin or moderator, notify both parties
-      if ((newRole === 'admin' || newRole === 'moderator') && oldRole !== newRole) {
-        const roleTitle = newRole === 'admin' ? 'Administrator' : 'Moderator';
-        const roleEmoji = newRole === 'admin' ? '👑' : '🛡️';
+      if ((newRole === 'admin' || newRole === 'moderator' || newRole === 'lecturer') && oldRole !== newRole) {
+        const roleTitle = newRole === 'admin' ? 'Administrator' : newRole === 'lecturer' ? 'Lecturer' : 'Moderator';
+        const roleEmoji = newRole === 'admin' ? '👑' : newRole === 'lecturer' ? '🎓' : '🛡️';
         
         // Notify the promoted user
         await supabase
@@ -131,6 +131,8 @@ export function UsersManagement() {
             title: `${roleEmoji} You are now a ${roleTitle}`,
             message: newRole === 'admin' 
               ? 'You have been granted administrator privileges. You now have access to the admin dashboard and can manage users, materials, and system settings.'
+              : newRole === 'lecturer'
+              ? 'You have been granted lecturer privileges. You can now upload materials to the library. Your materials will require admin approval before being published.'
               : 'You have been granted moderator privileges. You can now review and approve materials submitted by lecturers.',
             type: 'role_change'
           });
@@ -232,6 +234,7 @@ export function UsersManagement() {
 
   const adminUsers = filteredUsers.filter(u => u.role === 'admin');
   const moderatorUsers = filteredUsers.filter(u => u.role === 'moderator');
+  const lecturerUsers = filteredUsers.filter(u => u.role === 'lecturer');
   const regularUsers = filteredUsers.filter(u => u.role === 'user');
 
   const UserTable = ({ userList, title, icon: Icon }: { userList: UserWithRole[], title: string, icon: any }) => (
@@ -370,7 +373,7 @@ export function UsersManagement() {
       </CardHeader>
       <CardContent>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="all" className="flex items-center gap-1">
               <Users className="h-4 w-4" />
               All
@@ -378,6 +381,10 @@ export function UsersManagement() {
             <TabsTrigger value="admins" className="flex items-center gap-1">
               <Crown className="h-4 w-4" />
               Admins
+            </TabsTrigger>
+            <TabsTrigger value="lecturers" className="flex items-center gap-1">
+              <GraduationCap className="h-4 w-4" />
+              Lecturers
             </TabsTrigger>
             <TabsTrigger value="moderators" className="flex items-center gap-1">
               <Shield className="h-4 w-4" />
@@ -393,6 +400,9 @@ export function UsersManagement() {
             {adminUsers.length > 0 && (
               <UserTable userList={adminUsers} title="Administrators" icon={Crown} />
             )}
+            {lecturerUsers.length > 0 && (
+              <UserTable userList={lecturerUsers} title="Lecturers" icon={GraduationCap} />
+            )}
             {moderatorUsers.length > 0 && (
               <UserTable userList={moderatorUsers} title="Moderators" icon={Shield} />
             )}
@@ -401,6 +411,10 @@ export function UsersManagement() {
 
           <TabsContent value="admins">
             <UserTable userList={adminUsers} title="Administrators" icon={Crown} />
+          </TabsContent>
+
+          <TabsContent value="lecturers">
+            <UserTable userList={lecturerUsers} title="Lecturers" icon={GraduationCap} />
           </TabsContent>
 
           <TabsContent value="moderators">
