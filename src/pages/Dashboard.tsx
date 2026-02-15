@@ -40,22 +40,6 @@ export default function Dashboard() {
   const [recentMaterials, setRecentMaterials] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchRecentMaterials();
-  }, []);
-
-  // Get display role text
-  const getRoleDisplayText = () => {
-    if (isAdmin) return "Administrator";
-    if (isModerator) return "Lecturer";
-    return "Student";
-  };
-
-  // Redirect admins to admin dashboard
-  if (isAdmin) {
-    return <Navigate to="/admin" replace />;
-  }
-
   const fetchRecentMaterials = async () => {
     try {
       const { data, error } = await supabase
@@ -73,6 +57,22 @@ export default function Dashboard() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchRecentMaterials();
+  }, []);
+
+  // Get display role text
+  const getRoleDisplayText = () => {
+    if (isAdmin) return "Administrator";
+    if (isModerator) return "Lecturer";
+    return "Student";
+  };
+
+  // Redirect admins to admin dashboard
+  if (isAdmin) {
+    return <Navigate to="/admin" replace />;
+  }
 
   const getTypeColor = (type: string) => {
     switch (type) {
