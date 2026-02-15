@@ -70,14 +70,20 @@ Deno.serve(async (req) => {
     }
 
     // Delete all user data from public tables using service role
-    await adminClient.from("notifications").delete().eq("user_id", userId);
-    await adminClient.from("bookmarks").delete().eq("user_id", userId);
-    await adminClient.from("viewing_history").delete().eq("user_id", userId);
-    await adminClient.from("materials").delete().eq("uploaded_by", userId);
+    const deleteOps = [
+      adminClient.from("notifications").delete().eq("user_id", userId),
+      adminClient.from("bookmarks").delete().eq("user_id", userId),
+      adminClient.from("viewing_history").delete().eq("user_id", userId),
+      adminClient.from("materials").delete().eq("uploaded_by", userId),
+      adminClient.from("contact_messages").delete().eq("user_id", userId),
+    ];
+    await Promise.all(deleteOps);
+
+    // Delete roles and profile (order matters for foreign key refs)
     await adminClient.from("user_roles").delete().eq("user_id", userId);
     await adminClient.from("profiles").delete().eq("user_id", userId);
 
-    // Delete the auth user completely
+    // Delete the auth user completely (removes email, metadata, everything)
     const { error: authError } = await adminClient.auth.admin.deleteUser(userId);
     if (authError) {
       console.error("Error deleting auth user:", authError);
@@ -88,7 +94,7 @@ Deno.serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ success: true, message: "User completely deleted" }),
+      JSON.stringify({ success: true, message: "User completely deleted from all systems" }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {

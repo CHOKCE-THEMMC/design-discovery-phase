@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Book, FileText, ScrollText, GraduationCap, Download, Eye, Calendar, User, Video, Link as LinkIcon, Lock, Bookmark, BookmarkCheck } from "lucide-react";
+import { Book, FileText, ScrollText, GraduationCap, Download, Eye, Calendar, User, Video, Link as LinkIcon, Lock, Bookmark, BookmarkCheck, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
@@ -130,12 +130,23 @@ const MaterialCard = ({ material, showBookmark = true }: MaterialCardProps) => {
     <div className="book-card bg-card group">
       <div className={`h-32 ${colorClass} relative overflow-hidden`}>
         <div className="absolute inset-0 bg-gradient-to-br from-black/10 to-transparent" />
-        {isVideo ? (
-          isVideoLink ? (
-            <LinkIcon className="absolute bottom-4 right-4 h-16 w-16 text-white/20" />
-          ) : (
-            <Video className="absolute bottom-4 right-4 h-16 w-16 text-white/20" />
-          )
+        {isVideo && (material.videoUrl || material.fileUrl) ? (
+          <div className="absolute inset-0">
+            <video
+              className="w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              src={!isVideoLink ? (material.videoUrl || material.fileUrl) : undefined}
+              muted
+              loop
+              playsInline
+              onMouseEnter={(e) => (e.target as HTMLVideoElement).play().catch(() => {})}
+              onMouseLeave={(e) => { const v = e.target as HTMLVideoElement; v.pause(); v.currentTime = 0; }}
+            />
+            {isVideoLink ? (
+              <LinkIcon className="absolute bottom-4 right-4 h-16 w-16 text-white/20" />
+            ) : (
+              <Video className="absolute bottom-4 right-4 h-16 w-16 text-white/20 group-hover:opacity-0 transition-opacity" />
+            )}
+          </div>
         ) : (
           <Icon className="absolute bottom-4 right-4 h-16 w-16 text-white/20" />
         )}
@@ -212,23 +223,51 @@ const MaterialCard = ({ material, showBookmark = true }: MaterialCardProps) => {
         </Badge>
         
         <div className="flex gap-2 pt-2">
-          <Button variant="outline" size="sm" className="flex-1 text-xs" onClick={handlePreview}>
-            <Eye className="h-3.5 w-3.5 mr-1" />
-            Preview
-          </Button>
-          <Button size="sm" className="flex-1 text-xs" onClick={handleDownload}>
-            {!user ? (
-              <>
-                <Lock className="h-3.5 w-3.5 mr-1" />
-                Sign In
-              </>
-            ) : (
-              <>
-                <Download className="h-3.5 w-3.5 mr-1" />
-                Download
-              </>
-            )}
-          </Button>
+          {isVideoLink ? (
+            <>
+              <Button variant="outline" size="sm" className="flex-1 text-xs" onClick={() => {
+                const url = material.videoUrl || material.fileUrl || '';
+                navigator.clipboard.writeText(url);
+                toast.success("Link copied to clipboard!");
+              }}>
+                <LinkIcon className="h-3.5 w-3.5 mr-1" />
+                Copy Link
+              </Button>
+              <Button size="sm" className="flex-1 text-xs" onClick={() => {
+                const url = material.videoUrl || material.fileUrl || '';
+                const shareData = { title: material.title, text: material.description, url };
+                if (navigator.share) {
+                  navigator.share(shareData).catch(() => {});
+                } else {
+                  navigator.clipboard.writeText(url);
+                  toast.success("Link copied! Share it with friends.");
+                }
+              }}>
+                <Share2 className="h-3.5 w-3.5 mr-1" />
+                Share
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="outline" size="sm" className="flex-1 text-xs" onClick={handlePreview}>
+                <Eye className="h-3.5 w-3.5 mr-1" />
+                Preview
+              </Button>
+              <Button size="sm" className="flex-1 text-xs" onClick={handleDownload}>
+                {!user ? (
+                  <>
+                    <Lock className="h-3.5 w-3.5 mr-1" />
+                    Sign In
+                  </>
+                ) : (
+                  <>
+                    <Download className="h-3.5 w-3.5 mr-1" />
+                    Download
+                  </>
+                )}
+              </Button>
+            </>
+          )}
         </div>
       </div>
       
