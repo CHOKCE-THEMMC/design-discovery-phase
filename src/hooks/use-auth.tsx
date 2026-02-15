@@ -42,6 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState<AppRole | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [roleLoaded, setRoleLoaded] = useState(false);
 
   const fetchUserRole = async (userId: string) => {
     try {
@@ -90,16 +91,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         // Defer role and profile fetch with setTimeout to avoid deadlock
         if (session?.user) {
-          setTimeout(() => {
-            fetchUserRole(session.user.id).then(setUserRole);
-            fetchUserProfile(session.user.id).then(setUserProfile);
+          setTimeout(async () => {
+            const [role, profile] = await Promise.all([
+              fetchUserRole(session.user.id),
+              fetchUserProfile(session.user.id),
+            ]);
+            setUserRole(role);
+            setUserProfile(profile);
+            setRoleLoaded(true);
+            setLoading(false);
           }, 0);
         } else {
           setUserRole(null);
           setUserProfile(null);
+          setRoleLoaded(true);
+          setLoading(false);
         }
-        
-        setLoading(false);
       }
     );
 
@@ -109,11 +116,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        fetchUserRole(session.user.id).then(setUserRole);
-        fetchUserProfile(session.user.id).then(setUserProfile);
+        Promise.all([
+          fetchUserRole(session.user.id),
+          fetchUserProfile(session.user.id),
+        ]).then(([role, profile]) => {
+          setUserRole(role);
+          setUserProfile(profile);
+          setRoleLoaded(true);
+          setLoading(false);
+        });
+      } else {
+        setRoleLoaded(true);
+        setLoading(false);
       }
-      
-      setLoading(false);
     });
 
     return () => subscription.unsubscribe();

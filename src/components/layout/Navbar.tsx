@@ -27,7 +27,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const { user, signOut, isAdmin, isModerator, isLecturer } = useAuth();
-  const { unreadCount, notifications, markAsRead, markAllAsRead } = useNotifications();
+  const { unreadCount, notifications, markAsRead, markAllAsRead, clearAllNotifications } = useNotifications();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -211,11 +211,18 @@ const Navbar = () => {
                 <DropdownMenuContent align="end" className="w-80 bg-popover border-border">
                   <div className="flex items-center justify-between px-3 py-2 border-b border-border">
                     <span className="font-medium text-sm">Notifications</span>
-                    {unreadCount > 0 && (
-                      <Button variant="ghost" size="sm" onClick={markAllAsRead} className="text-xs h-6">
-                        Mark all read
-                      </Button>
-                    )}
+                    <div className="flex gap-1">
+                      {unreadCount > 0 && (
+                        <Button variant="ghost" size="sm" onClick={markAllAsRead} className="text-xs h-6">
+                          Mark all read
+                        </Button>
+                      )}
+                      {notifications.length > 0 && (
+                        <Button variant="ghost" size="sm" onClick={clearAllNotifications} className="text-xs h-6 text-destructive hover:text-destructive">
+                          Clear all
+                        </Button>
+                      )}
+                    </div>
                   </div>
                   <div className="max-h-64 overflow-y-auto">
                     {notifications.length === 0 ? (
@@ -223,21 +230,33 @@ const Navbar = () => {
                         No notifications yet
                       </div>
                     ) : (
-                      notifications.slice(0, 5).map((notif) => (
+                      notifications.slice(0, 8).map((notif) => (
                         <div 
                           key={notif.id} 
                           className={cn(
                             "px-3 py-2 border-b border-border last:border-0 cursor-pointer hover:bg-muted/50",
                             !notif.read && "bg-primary/5"
                           )}
-                          onClick={() => markAsRead(notif.id)}
+                          onClick={() => !notif.read && markAsRead(notif.id)}
                         >
-                          <p className="text-sm font-medium">{notif.title}</p>
-                          <p className="text-xs text-muted-foreground">{notif.message}</p>
+                          <div className="flex items-start gap-2">
+                            {!notif.read && <div className="h-2 w-2 mt-1.5 rounded-full bg-primary shrink-0" />}
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm font-medium truncate">{notif.title}</p>
+                              <p className="text-xs text-muted-foreground line-clamp-2">{notif.message}</p>
+                            </div>
+                          </div>
                         </div>
                       ))
                     )}
                   </div>
+                  {notifications.length > 0 && (
+                    <div className="px-3 py-2 border-t border-border">
+                      <Link to="/dashboard" className="text-xs text-primary hover:underline">
+                        View all notifications
+                      </Link>
+                    </div>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
