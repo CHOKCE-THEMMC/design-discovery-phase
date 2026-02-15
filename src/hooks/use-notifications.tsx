@@ -16,6 +16,7 @@ interface NotificationsContextType {
   unreadCount: number;
   markAsRead: (id: string) => Promise<void>;
   markAllAsRead: () => Promise<void>;
+  clearAllNotifications: () => Promise<void>;
   addNotification: (title: string, message: string, type?: string) => Promise<void>;
   loading: boolean;
 }
@@ -127,6 +128,19 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const clearAllNotifications = async () => {
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('notifications')
+      .delete()
+      .eq('user_id', user.id);
+
+    if (!error) {
+      setNotifications([]);
+    }
+  };
+
   const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
@@ -135,6 +149,7 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
       unreadCount,
       markAsRead,
       markAllAsRead,
+      clearAllNotifications,
       addNotification,
       loading
     }}>

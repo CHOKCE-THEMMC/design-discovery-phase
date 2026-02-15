@@ -128,7 +128,7 @@ const MaterialCard = ({ material, showBookmark = true }: MaterialCardProps) => {
 
   return (
     <div className="book-card bg-card group">
-      <div className={`h-32 ${colorClass} relative overflow-hidden`}>
+      <div className={`${isVideo ? 'h-48 md:h-56' : 'h-32'} ${colorClass} relative overflow-hidden`}>
         <div className="absolute inset-0 bg-gradient-to-br from-black/10 to-transparent" />
         {isVideo && (material.videoUrl || material.fileUrl) ? (
           <div className="absolute inset-0">
@@ -224,29 +224,38 @@ const MaterialCard = ({ material, showBookmark = true }: MaterialCardProps) => {
         
         <div className="flex gap-2 pt-2">
           {isVideoLink ? (
-            <>
-              <Button variant="outline" size="sm" className="flex-1 text-xs" onClick={() => {
-                const url = material.videoUrl || material.fileUrl || '';
-                navigator.clipboard.writeText(url);
-                toast.success("Link copied to clipboard!");
-              }}>
-                <LinkIcon className="h-3.5 w-3.5 mr-1" />
+            <div className="flex gap-2 w-full">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex-1 text-xs gap-1.5 border-primary/30 hover:bg-primary/10 hover:text-primary transition-all"
+                onClick={() => {
+                  const url = material.videoUrl || material.fileUrl || '';
+                  navigator.clipboard.writeText(url);
+                  toast.success("Link copied to clipboard!");
+                }}
+              >
+                <LinkIcon className="h-3.5 w-3.5" />
                 Copy Link
               </Button>
-              <Button size="sm" className="flex-1 text-xs" onClick={() => {
-                const url = material.videoUrl || material.fileUrl || '';
-                const shareData = { title: material.title, text: material.description, url };
-                if (navigator.share) {
-                  navigator.share(shareData).catch(() => {});
-                } else {
-                  navigator.clipboard.writeText(url);
-                  toast.success("Link copied! Share it with friends.");
-                }
-              }}>
-                <Share2 className="h-3.5 w-3.5 mr-1" />
+              <Button 
+                size="sm" 
+                className="flex-1 text-xs gap-1.5 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 transition-all"
+                onClick={() => {
+                  const url = material.videoUrl || material.fileUrl || '';
+                  const shareData = { title: material.title, text: material.description, url };
+                  if (navigator.share) {
+                    navigator.share(shareData).catch(() => {});
+                  } else {
+                    navigator.clipboard.writeText(url);
+                    toast.success("Link copied! Share it with friends.");
+                  }
+                }}
+              >
+                <Share2 className="h-3.5 w-3.5" />
                 Share
               </Button>
-            </>
+            </div>
           ) : (
             <>
               <Button variant="outline" size="sm" className="flex-1 text-xs" onClick={handlePreview}>

@@ -35,7 +35,7 @@ interface DownloadHistory {
 
 export default function Dashboard() {
   const { user, userProfile, userRole, isAdmin, isModerator, isApproved } = useAuth();
-  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
+  const { notifications, unreadCount, markAsRead, markAllAsRead, clearAllNotifications } = useNotifications();
   const [activeTab, setActiveTab] = useState("overview");
   const [recentMaterials, setRecentMaterials] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -248,6 +248,12 @@ export default function Dashboard() {
                   <Button variant="outline" size="sm" onClick={markAllAsRead}>
                     <CheckCircle className="h-4 w-4 mr-2" />
                     Mark all as read
+                  </Button>
+                )}
+                {notifications.length > 0 && (
+                  <Button variant="outline" size="sm" onClick={clearAllNotifications} className="text-destructive hover:text-destructive">
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Clear all
                   </Button>
                 )}
               </CardHeader>
