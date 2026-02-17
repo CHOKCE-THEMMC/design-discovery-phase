@@ -32,6 +32,7 @@ interface AuthContextType {
   isLecturer: boolean;
   isApproved: boolean;
   isPending: boolean;
+  roleLoaded: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -217,6 +218,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLecturer,
       isApproved,
       isPending,
+      roleLoaded,
     }}>
       {children}
     </AuthContext.Provider>
