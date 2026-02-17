@@ -17,9 +17,10 @@ export function ProtectedRoute({
   requireModerator = false,
   requireApproval = true
 }: ProtectedRouteProps) {
-  const { user, loading, isAdmin, isModerator, isApproved, isPending, signOut } = useAuth();
+  const { user, loading, isAdmin, isModerator, isApproved, isPending, roleLoaded, signOut } = useAuth();
 
-  if (loading) {
+  // Wait for both auth AND role to be fully loaded
+  if (loading || !roleLoaded) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -29,6 +30,15 @@ export function ProtectedRoute({
 
   if (!user) {
     return <Navigate to="/login" replace />;
+  }
+
+  // Admin check BEFORE pending check to ensure admins always get through
+  if (requireAdmin && !isAdmin) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (requireModerator && !isModerator) {
+    return <Navigate to="/" replace />;
   }
 
   // Show pending approval message for non-admin users
@@ -68,14 +78,6 @@ export function ProtectedRoute({
         </Card>
       </div>
     );
-  }
-
-  if (requireAdmin && !isAdmin) {
-    return <Navigate to="/" replace />;
-  }
-
-  if (requireModerator && !isModerator) {
-    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;

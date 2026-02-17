@@ -11,6 +11,9 @@ import PageTransition from "@/components/layout/PageTransition";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+import AIChatbot from "./components/chat/AIChatbot";
 import Books from "./pages/Books";
 import LectureNotes from "./pages/LectureNotes";
 import PastPapers from "./pages/PastPapers";
@@ -44,6 +47,8 @@ const App = () => (
                 <Route path="/" element={<Index />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/books" element={<Books />} />
                 <Route path="/lecture-notes" element={<LectureNotes />} />
                 <Route path="/past-papers" element={<PastPapers />} />
@@ -98,6 +103,7 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
               </PageTransition>
+              <AIChatbot />
             </TooltipProvider>
           </NotificationsProvider>
         </AuthProvider>

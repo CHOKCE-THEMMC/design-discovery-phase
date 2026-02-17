@@ -1,6 +1,6 @@
-import { ReactNode, useEffect, useState, useCallback } from 'react';
+import { ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
-import PageLoader from '@/components/ui/PageLoader';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface PageTransitionProps {
   children: ReactNode;
@@ -8,28 +8,20 @@ interface PageTransitionProps {
 
 const PageTransition = ({ children }: PageTransitionProps) => {
   const location = useLocation();
-  const [isLoading, setIsLoading] = useState(false);
-  const [displayLocation, setDisplayLocation] = useState(location);
 
-  useEffect(() => {
-    if (location.pathname !== displayLocation.pathname) {
-      setIsLoading(true);
-      
-      // Short delay to show loading state
-      const timer = setTimeout(() => {
-        setDisplayLocation(location);
-        setIsLoading(false);
-      }, 300);
-
-      return () => clearTimeout(timer);
-    }
-  }, [location, displayLocation]);
-
-  if (isLoading) {
-    return <PageLoader />;
-  }
-
-  return <>{children}</>;
+  return (
+    <AnimatePresence mode="wait" initial={false}>
+      <motion.div
+        key={location.pathname}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.15, ease: "easeInOut" }}
+      >
+        {children}
+      </motion.div>
+    </AnimatePresence>
+  );
 };
 
 export default PageTransition;

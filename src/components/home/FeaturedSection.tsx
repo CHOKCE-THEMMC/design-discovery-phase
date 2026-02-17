@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { BookOpen, Download, Eye, Star, ArrowRight, Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useFeaturedMaterials } from "@/hooks/use-materials";
@@ -53,9 +54,8 @@ const FeaturedSection = () => {
         ) : materials.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {materials.map((material, index) => (
-              <Link
+              <div
                 key={material.id}
-                to={`/browse`}
                 className="group bg-card rounded-xl overflow-hidden border border-border hover-lift animate-fade-in"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
@@ -85,7 +85,7 @@ const FeaturedSection = () => {
                     <span className="text-sm text-muted-foreground">• {material.department}</span>
                   </div>
 
-                  <h3 className="font-display text-lg font-semibold text-foreground mb-1 line-clamp-2 group-hover:text-primary transition-colors">
+                  <h3 className="font-display text-lg font-semibold text-foreground mb-1 line-clamp-2">
                     {material.title}
                   </h3>
                   <p className="text-sm text-muted-foreground mb-3">
@@ -104,7 +104,7 @@ const FeaturedSection = () => {
                     </span>
                   </div>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         ) : (
