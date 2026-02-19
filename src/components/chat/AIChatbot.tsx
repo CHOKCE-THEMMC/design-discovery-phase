@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles } from "lucide-react";
+import { X, Send, Bot, User, Loader2, BrainCircuit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -127,7 +127,7 @@ const AIChatbot = () => {
               size="lg"
               className="h-14 w-14 rounded-full shadow-lg bg-primary hover:bg-primary/90 text-primary-foreground"
             >
-              <Sparkles className="h-6 w-6" />
+              <BrainCircuit className="h-6 w-6" />
             </Button>
             <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-library-gold animate-pulse" />
           </motion.div>

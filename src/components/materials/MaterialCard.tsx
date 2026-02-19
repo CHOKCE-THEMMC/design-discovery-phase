@@ -128,24 +128,34 @@ const MaterialCard = ({ material, showBookmark = true }: MaterialCardProps) => {
 
   return (
     <div className="book-card bg-card group">
-      <div className={`${isVideo ? 'h-48 md:h-56' : 'h-32'} ${colorClass} relative overflow-hidden`}>
+      <div className={`${isVideo ? 'aspect-video' : 'h-32'} ${colorClass} relative overflow-hidden`}>
         <div className="absolute inset-0 bg-gradient-to-br from-black/10 to-transparent" />
         {isVideo && (material.videoUrl || material.fileUrl) ? (
-          <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-black">
             <video
-              className="w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              className="w-full h-full object-contain"
               src={!isVideoLink ? (material.videoUrl || material.fileUrl) : undefined}
               muted
               loop
               playsInline
+              poster={material.thumbnailUrl || undefined}
               onMouseEnter={(e) => (e.target as HTMLVideoElement).play().catch(() => {})}
               onMouseLeave={(e) => { const v = e.target as HTMLVideoElement; v.pause(); v.currentTime = 0; }}
             />
-            {isVideoLink ? (
-              <LinkIcon className="absolute bottom-4 right-4 h-16 w-16 text-white/20" />
-            ) : (
-              <Video className="absolute bottom-4 right-4 h-16 w-16 text-white/20 group-hover:opacity-0 transition-opacity" />
-            )}
+            {/* YouTube-style play button overlay */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none group-hover:opacity-0 transition-opacity duration-300">
+              <div className="h-14 w-14 rounded-full bg-red-600/90 flex items-center justify-center shadow-lg">
+                <svg className="h-7 w-7 text-white ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              </div>
+            </div>
+            {/* YouTube-style bottom bar */}
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-muted/30">
+              <div className="h-full w-1/3 bg-red-600 rounded-r" />
+            </div>
+            {/* Duration badge */}
+            <div className="absolute bottom-2 right-2 bg-black/80 text-white text-[10px] font-medium px-1.5 py-0.5 rounded">
+              {isVideoLink ? 'LINK' : 'VIDEO'}
+            </div>
           </div>
         ) : (
           <Icon className="absolute bottom-4 right-4 h-16 w-16 text-white/20" />
@@ -157,11 +167,6 @@ const MaterialCard = ({ material, showBookmark = true }: MaterialCardProps) => {
           >
             {material.type.replace("-", " ")}
           </Badge>
-          {isVideo && (
-            <Badge variant="secondary" className="bg-red-500 text-white text-xs">
-              {isVideoLink ? 'Video Link' : 'Video'}
-            </Badge>
-          )}
         </div>
         <div className="absolute top-3 right-3 flex gap-2">
           {showBookmark && (
@@ -184,7 +189,7 @@ const MaterialCard = ({ material, showBookmark = true }: MaterialCardProps) => {
           )}
         </div>
         {!user && (
-          <div className="absolute bottom-3 right-3">
+          <div className="absolute bottom-3 left-3">
             <Badge variant="outline" className="bg-black/50 text-white border-white/30 text-xs flex items-center gap-1">
               <Lock className="h-3 w-3" />
               Limited Preview
