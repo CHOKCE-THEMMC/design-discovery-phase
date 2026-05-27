@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, AlertTriangle, Loader2, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -16,9 +17,29 @@ type HealthResp = {
 };
 
 const HEALTH_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/health`;
-const POLL_MS = 60_000;
+
+// Routes where sign-in / chatbot status is critical → poll often.
+// Other pages poll less to save requests.
+const ACTIVE_POLL_MS = 30_000;
+const IDLE_POLL_MS = 300_000; // 5 min
+
+const ACTIVE_ROUTES = [
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/reset-password",
+  "/dashboard",
+  "/admin",
+  "/my-materials",
+  "/bookmarks",
+  "/history",
+];
+
+const isActiveRoute = (pathname: string) =>
+  ACTIVE_ROUTES.some((r) => pathname === r || pathname.startsWith(r + "/"));
 
 const StatusIndicator = () => {
+  const { pathname } = useLocation();
   const [data, setData] = useState<HealthResp | null>(null);
   const [loading, setLoading] = useState(true);
   const [reachable, setReachable] = useState(true);
@@ -43,9 +64,20 @@ const StatusIndicator = () => {
 
   useEffect(() => {
     check();
-    const id = setInterval(check, POLL_MS);
-    return () => clearInterval(id);
-  }, []);
+    const interval = isActiveRoute(pathname) ? ACTIVE_POLL_MS : IDLE_POLL_MS;
+    const id = setInterval(check, interval);
+
+    // Re-check when tab becomes visible again
+    const onVisible = () => {
+      if (document.visibilityState === "visible") check();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+
+    return () => {
+      clearInterval(id);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [pathname]);
 
   const overallOk = reachable && data?.status === "ok";
   const overallDegraded = reachable && data?.status === "degraded";
