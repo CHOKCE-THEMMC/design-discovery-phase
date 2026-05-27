@@ -17,6 +17,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import ThemeToggle from "@/components/theme/ThemeToggle";
+import StatusIndicator from "@/components/system/StatusIndicator";
 import Logo from "@/components/layout/Logo";
 import SearchAutocomplete from "@/components/search/SearchAutocomplete";
 import { useAuth } from "@/hooks/use-auth";
@@ -194,6 +195,7 @@ const Navbar = () => {
               </DialogContent>
             </Dialog>
             
+            <StatusIndicator />
             <ThemeToggle />
             
             {user && (
