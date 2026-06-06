@@ -281,7 +281,7 @@ const Navbar = () => {
                   </div>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link to={isAdmin ? "/admin" : "/dashboard"} className="cursor-pointer">
+                    <Link to="/dashboard" className="cursor-pointer">
                       <LayoutDashboard className="h-4 w-4 mr-2" /> My Dashboard
                     </Link>
                   </DropdownMenuItem>
@@ -461,10 +461,10 @@ const Navbar = () => {
                 <>
                   <div className="border-t border-border my-2" />
                   <Link 
-                    to={isAdmin ? "/admin" : "/dashboard"} 
+                    to="/dashboard" 
                     className={cn(
                       "px-4 py-2 rounded-md flex items-center gap-2",
-                      (isActiveLink("/dashboard") || isActiveLink("/admin")) ? "bg-primary/10 text-primary font-medium" : "text-foreground/80 hover:text-foreground hover:bg-muted"
+                      isActiveLink("/dashboard") ? "bg-primary/10 text-primary font-medium" : "text-foreground/80 hover:text-foreground hover:bg-muted"
                     )} 
                     onClick={() => setIsOpen(false)}
                   >
