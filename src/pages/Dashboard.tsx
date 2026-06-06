@@ -9,7 +9,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAuth } from "@/hooks/use-auth";
 import { useNotifications } from "@/hooks/use-notifications";
-import { Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   User, 
@@ -68,11 +67,6 @@ export default function Dashboard() {
     if (isModerator) return "Lecturer";
     return "Student";
   };
-
-  // Redirect admins to admin dashboard
-  if (isAdmin) {
-    return <Navigate to="/admin" replace />;
-  }
 
   const getTypeColor = (type: string) => {
     switch (type) {
