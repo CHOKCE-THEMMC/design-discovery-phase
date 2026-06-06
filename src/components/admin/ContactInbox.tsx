@@ -18,7 +18,6 @@ interface ContactMessage {
   id: string;
   name: string;
   email: string;
-  subject: string;
   message: string;
   status: string;
   created_at: string;
@@ -94,7 +93,6 @@ export function ContactInbox() {
                       {formatDistanceToNow(new Date(m.created_at), { addSuffix: true })}
                     </span>
                   </div>
-                  <p className="text-sm truncate">{m.subject}</p>
                   <p className="text-xs text-muted-foreground truncate">{m.message}</p>
                 </div>
                 <Badge variant={m.status === 'new' ? 'default' : 'secondary'} className="shrink-0">
@@ -111,7 +109,7 @@ export function ContactInbox() {
           {selected && (
             <>
               <DialogHeader>
-                <DialogTitle>{selected.subject}</DialogTitle>
+                <DialogTitle>Message from {selected.name}</DialogTitle>
               </DialogHeader>
               <div className="space-y-3">
                 <p className="text-sm">
@@ -128,7 +126,7 @@ export function ContactInbox() {
                 </div>
                 <div className="flex flex-wrap gap-2 pt-2">
                   <Button asChild>
-                    <a href={`mailto:${selected.email}?subject=Re: ${encodeURIComponent(selected.subject)}`}>
+                    <a href={`mailto:${selected.email}?subject=Re%3A%20Your%20message%20to%20DTI%20Library`}>
                       <ExternalLink className="h-4 w-4 mr-2" /> Reply by email
                     </a>
                   </Button>
