@@ -23,6 +23,7 @@ import About from "./pages/About";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import Contact from "./pages/Contact";
+import Messages from "./pages/Messages";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import MyMaterials from "./pages/lecturer/MyMaterials";
 import Dashboard from "./pages/Dashboard";
@@ -98,6 +99,14 @@ const App = () => (
                       <AdminDashboard />
                     </ProtectedRoute>
                   } 
+                />
+                <Route
+                  path="/messages"
+                  element={
+                    <ProtectedRoute>
+                      <Messages />
+                    </ProtectedRoute>
+                  }
                 />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />

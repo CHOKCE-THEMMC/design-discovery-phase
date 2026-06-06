@@ -10,7 +10,9 @@ import {
   FileCheck, 
   Upload,
   GraduationCap,
-  UserCheck
+  UserCheck,
+  MessageSquare,
+  Inbox
 } from 'lucide-react';
 import { AdminOverview } from '@/components/admin/AdminOverview';
 import { MaterialsManagement } from '@/components/admin/MaterialsManagement';
@@ -19,6 +21,8 @@ import { PendingApprovals } from '@/components/admin/PendingApprovals';
 import { UploadMaterial } from '@/components/admin/UploadMaterial';
 import { ProgramsManagement } from '@/components/admin/ProgramsManagement';
 import { UserApprovals } from '@/components/admin/UserApprovals';
+import { AdminMessaging } from '@/components/admin/AdminMessaging';
+import { ContactInbox } from '@/components/admin/ContactInbox';
 
 export default function AdminDashboard() {
   const { user, isAdmin } = useAuth();
@@ -68,6 +72,14 @@ export default function AdminDashboard() {
               <Upload className="h-4 w-4" />
               <span className="hidden sm:inline">Upload</span>
             </TabsTrigger>
+            <TabsTrigger value="messaging" className="flex items-center gap-2">
+              <MessageSquare className="h-4 w-4" />
+              <span className="hidden sm:inline">Messaging</span>
+            </TabsTrigger>
+            <TabsTrigger value="contact" className="flex items-center gap-2">
+              <Inbox className="h-4 w-4" />
+              <span className="hidden sm:inline">Contact Inbox</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview">
@@ -96,6 +108,14 @@ export default function AdminDashboard() {
 
           <TabsContent value="upload">
             <UploadMaterial />
+          </TabsContent>
+
+          <TabsContent value="messaging">
+            <AdminMessaging />
+          </TabsContent>
+
+          <TabsContent value="contact">
+            <ContactInbox />
           </TabsContent>
         </Tabs>
       </main>

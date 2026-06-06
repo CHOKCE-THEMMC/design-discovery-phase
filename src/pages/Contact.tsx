@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mail, Phone, MapPin, Send, Loader2, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
 
 const contactSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
@@ -57,18 +58,28 @@ const Contact = () => {
 
     setLoading(true);
 
-    // Simulate form submission (in a real app, this would send to an API)
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    try {
+      const { error } = await supabase.from("contact_messages").insert({
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        // contact_messages.message stores both subject and message
+        message: `Subject: ${formData.subject.trim()}\n\n${formData.message.trim()}`,
+        status: "new",
+      });
+      if (error) throw error;
 
-    setLoading(false);
-    setSubmitted(true);
-    toast.success("Message sent successfully! We'll get back to you soon.");
-
-    // Reset form after delay
-    setTimeout(() => {
-      setSubmitted(false);
-      setFormData({ name: "", email: "", subject: "", message: "" });
-    }, 3000);
+      setSubmitted(true);
+      toast.success("Message sent! We'll get back to you within 24 hours.");
+      setTimeout(() => {
+        setSubmitted(false);
+        setFormData({ name: "", email: "", subject: "", message: "" });
+      }, 3000);
+    } catch (err: any) {
+      console.error("Contact submit error", err);
+      toast.error(err.message || "Failed to send message. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

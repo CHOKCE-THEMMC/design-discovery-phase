@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Search, Bell, ChevronDown, User, LogOut, Shield, FileText, LayoutDashboard, Bookmark, History } from "lucide-react";
+import { Menu, X, Search, Bell, ChevronDown, User, LogOut, Shield, FileText, LayoutDashboard, Bookmark, History, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -22,6 +22,7 @@ import Logo from "@/components/layout/Logo";
 import SearchAutocomplete from "@/components/search/SearchAutocomplete";
 import { useAuth } from "@/hooks/use-auth";
 import { useNotifications } from "@/hooks/use-notifications";
+import { useUnreadMessageCount } from "@/hooks/use-messages";
 import { cn } from "@/lib/utils";
 
 const Navbar = () => {
@@ -29,6 +30,7 @@ const Navbar = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const { user, signOut, isAdmin, isModerator, isLecturer } = useAuth();
   const { unreadCount, notifications, markAsRead, markAllAsRead, clearAllNotifications } = useNotifications();
+  const unreadMessages = useUnreadMessageCount();
   const location = useLocation();
 
   const categories = [
@@ -284,6 +286,18 @@ const Navbar = () => {
                       <LayoutDashboard className="h-4 w-4 mr-2" /> My Dashboard
                     </Link>
                   </DropdownMenuItem>
+                  {!isAdmin && (
+                    <DropdownMenuItem asChild>
+                      <Link to="/messages" className="cursor-pointer">
+                        <MessageCircle className="h-4 w-4 mr-2" /> Messages
+                        {unreadMessages > 0 && (
+                          <span className="ml-auto text-xs bg-primary text-primary-foreground rounded-full px-2 py-0.5">
+                            {unreadMessages}
+                          </span>
+                        )}
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem asChild>
                     <Link to="/bookmarks" className="cursor-pointer">
                       <Bookmark className="h-4 w-4 mr-2" /> My Bookmarks
@@ -305,6 +319,11 @@ const Navbar = () => {
                     <DropdownMenuItem asChild>
                       <Link to="/admin" className="cursor-pointer">
                         <Shield className="h-4 w-4 mr-2" /> Admin Dashboard
+                        {unreadMessages > 0 && (
+                          <span className="ml-auto text-xs bg-primary text-primary-foreground rounded-full px-2 py-0.5">
+                            {unreadMessages}
+                          </span>
+                        )}
                       </Link>
                     </DropdownMenuItem>
                   )}
@@ -469,6 +488,23 @@ const Navbar = () => {
                   >
                     <LayoutDashboard className="h-4 w-4" /> My Dashboard
                   </Link>
+                  {!isAdmin && (
+                    <Link
+                      to="/messages"
+                      className={cn(
+                        "px-4 py-2 rounded-md flex items-center gap-2",
+                        isActiveLink("/messages") ? "bg-primary/10 text-primary font-medium" : "text-foreground/80 hover:text-foreground hover:bg-muted"
+                      )}
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <MessageCircle className="h-4 w-4" /> Messages
+                      {unreadMessages > 0 && (
+                        <span className="ml-auto text-xs bg-primary text-primary-foreground rounded-full px-2 py-0.5">
+                          {unreadMessages}
+                        </span>
+                      )}
+                    </Link>
+                  )}
                   <Link 
                     to="/bookmarks" 
                     className={cn(
