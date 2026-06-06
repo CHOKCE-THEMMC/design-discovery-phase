@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Menu, X, Search, Bell, ChevronDown, User, LogOut, Shield, FileText, LayoutDashboard, Bookmark, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,7 +30,6 @@ const Navbar = () => {
   const { user, signOut, isAdmin, isModerator, isLecturer } = useAuth();
   const { unreadCount, notifications, markAsRead, markAllAsRead, clearAllNotifications } = useNotifications();
   const location = useLocation();
-  const navigate = useNavigate();
 
   const categories = [
     { name: "Books", href: "/books" },
